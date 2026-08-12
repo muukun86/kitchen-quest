@@ -9,166 +9,96 @@
 <title>Kitchen Quest — 台所迷宮</title>
 <style>
   :root{
-    --bg:#0e1116;
-    --panel:#161c26;
-    --panel2:#1d2634;
-    --line:#2a3547;
-    --ink:#e8eef7;
-    --sub:#8ea0b8;
-    --gold:#e7b84f;
-    --gold-dim:#8a6d24;
-    --hp:#4fbf7a;
-    --hp-dim:#264d38;
-    --danger:#e0603a;
-    --mp:#4f8fe0;
-    --violet:#9a6fe0;
+    --bg:#0e1116; --panel:#161c26; --panel2:#1d2634; --line:#2a3547;
+    --ink:#e8eef7; --sub:#8ea0b8; --gold:#e7b84f; --gold-dim:#8a6d24;
+    --hp:#4fbf7a; --hp-dim:#264d38; --danger:#e0603a; --mp:#4f8fe0; --violet:#9a6fe0;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   body{
-    background:
-      radial-gradient(120% 60% at 50% -10%, #1b2740 0%, transparent 60%),
-      var(--bg);
-    color:var(--ink);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
-    min-height:100vh;
-    padding:16px 14px 40px;
-    max-width:440px;margin:0 auto;
-    letter-spacing:.02em;
+    background:radial-gradient(120% 60% at 50% -10%, #1b2740 0%, transparent 60%), var(--bg);
+    color:var(--ink); font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+    min-height:100vh; padding:16px 14px 40px; max-width:460px;margin:0 auto; letter-spacing:.02em;
   }
-  /* ---- header ---- */
-  .crest{
-    display:flex;align-items:center;gap:11px;
-    padding:14px 16px;
-    border:1px solid var(--line);
-    border-radius:16px;
-    background:linear-gradient(180deg,var(--panel2),var(--panel));
-    box-shadow:0 0 0 1px #0a0d12 inset, 0 8px 24px rgba(0,0,0,.35);
-  }
-  .sigil{
-    width:42px;height:42px;flex:none;border-radius:11px;
-    background:linear-gradient(150deg,var(--gold),#a97e22);
-    display:grid;place-items:center;color:#20160a;font-weight:900;font-size:22px;
-    box-shadow:0 0 14px rgba(231,184,79,.35);
-  }
+  .crest{display:flex;align-items:center;gap:11px;padding:14px 16px;border:1px solid var(--line);
+    border-radius:16px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+    box-shadow:0 0 0 1px #0a0d12 inset, 0 8px 24px rgba(0,0,0,.35);}
+  .sigil{width:42px;height:42px;flex:none;border-radius:11px;background:linear-gradient(150deg,var(--gold),#a97e22);
+    display:grid;place-items:center;color:#20160a;font-weight:900;font-size:22px;box-shadow:0 0 14px rgba(231,184,79,.35);}
   .crest h1{font-size:17px;font-weight:800;letter-spacing:.06em;}
-  .crest .loc{font-size:11.5px;color:var(--sub);margin-top:2px;letter-spacing:.14em;}
-  .crest .tag{
-    margin-left:auto;font-size:10px;color:var(--gold);
-    border:1px solid var(--gold-dim);border-radius:999px;padding:3px 9px;letter-spacing:.12em;
-    white-space:nowrap;
-  }
-  /* ---- tabs ---- */
-  .tabs{display:flex;gap:6px;margin:14px 0 12px;}
-  .tab{
-    flex:1;border:1px solid var(--line);border-radius:11px;
-    background:var(--panel);padding:9px 4px;text-align:center;cursor:pointer;
-    font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.04em;
-    transition:background .15s,color .15s,border-color .15s;position:relative;
-  }
-  .tab .cnt{
-    display:inline-block;min-width:16px;margin-left:3px;font-size:10px;
-    color:var(--gold);font-weight:800;
-  }
-  .tab.active{color:var(--ink);background:linear-gradient(180deg,var(--panel2),var(--panel));border-color:var(--gold-dim);}
-  .tab.active::after{
-    content:"";position:absolute;left:16%;right:16%;bottom:-1px;height:2px;
-    background:var(--gold);border-radius:2px;
-  }
-  /* ---- party status ---- */
-  .status{display:flex;gap:8px;margin:0 2px 14px;}
-  .stat{
-    flex:1;border:1px solid var(--line);border-radius:12px;
-    background:var(--panel);padding:9px 11px;text-align:center;
-  }
+  .crest .loc{font-size:11.5px;color:var(--sub);margin-top:2px;letter-spacing:.1em;}
+  .crest .tag{margin-left:auto;font-size:10px;color:var(--gold);border:1px solid var(--gold-dim);
+    border-radius:999px;padding:3px 9px;letter-spacing:.1em;}
+
+  .tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto;padding-bottom:2px;}
+  .tab{flex:none;padding:8px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
+    color:var(--sub);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .tab.active{background:linear-gradient(180deg,#2a3547,#1d2634);color:var(--gold);border-color:var(--gold-dim);}
+  .tab .n{opacity:.65;font-weight:500;margin-left:3px;}
+  .tab.buy.active{color:var(--danger);border-color:var(--danger);}
+
+  .status{display:flex;gap:8px;margin:4px 2px 14px;}
+  .stat{flex:1;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:9px 11px;text-align:center;}
   .stat b{display:block;font-size:20px;font-weight:900;line-height:1;}
-  .stat span{font-size:10px;color:var(--sub);letter-spacing:.1em;}
-  .stat.cleared b{color:var(--gold);}
-  .stat.low b{color:var(--danger);}
-  /* ---- item card ---- */
+  .stat span{font-size:10px;color:var(--sub);letter-spacing:.08em;}
+  .stat.cleared b{color:var(--gold);} .stat.low b{color:var(--danger);}
+
   .roster{display:flex;flex-direction:column;gap:9px;}
-  .mob{
-    display:flex;align-items:center;gap:12px;
-    border:1px solid var(--line);border-radius:14px;
-    background:linear-gradient(180deg,var(--panel2),var(--panel));
-    padding:11px 12px;position:relative;overflow:hidden;
-    transition:opacity .25s, filter .25s;
-  }
-  .mob::before{
-    content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
-    background:var(--hp);opacity:.8;
-  }
-  .mob.pri-high::before{background:var(--danger);}
-  .mob.pri-mid::before{background:var(--gold);}
-  .mob.pri-low::before{background:var(--mp);}
-  .icon{
-    width:40px;height:40px;flex:none;border-radius:10px;
-    background:#0c1017;border:1px solid var(--line);
-    display:grid;place-items:center;font-size:21px;
-  }
+  .mob{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));padding:11px 12px;position:relative;
+    overflow:hidden;transition:opacity .25s, filter .25s;}
+  .mob::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line);opacity:.8;}
+  .mob.low-stock{border-color:var(--danger);background:linear-gradient(180deg,#241a18,#1d1614);}
+  .mob.low-stock::before{background:var(--danger);}
   .meta{flex:1;min-width:0;}
   .meta .nm{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .meta .nt{font-size:11px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .pri{
-    font-size:9px;letter-spacing:.1em;border-radius:6px;padding:1.5px 6px;margin-right:6px;
-    border:1px solid currentColor;vertical-align:1px;
-  }
-  .pri.high{color:var(--danger);}
-  .pri.mid{color:var(--gold);}
-  .pri.low{color:var(--mp);}
-  /* qty stepper */
-  .step{display:flex;align-items:center;gap:7px;flex:none;}
-  .qty{
-    min-width:42px;text-align:center;font-weight:900;font-size:16px;
-    font-variant-numeric:tabular-nums;
-  }
-  .qty small{font-size:10px;color:var(--sub);font-weight:600;}
-  .btn{
-    width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
-    background:#0c1017;color:var(--ink);font-size:20px;font-weight:800;
-    display:grid;place-items:center;cursor:pointer;user-select:none;
-    transition:transform .06s, background .15s, border-color .15s;
-  }
+  .buyflag{font-size:9px;letter-spacing:.05em;border-radius:6px;padding:1.5px 6px;margin-right:6px;
+    font-weight:800;color:var(--danger);border:1px solid var(--danger);vertical-align:1px;}
+  .tierbadge{font-size:9px;letter-spacing:.05em;border-radius:6px;padding:1.5px 6px;margin-right:5px;
+    font-weight:800;vertical-align:1px;}
+  .tierbadge.t1{background:rgba(224,96,58,.18);color:var(--danger);}
+  .tierbadge.t2{background:rgba(231,184,79,.15);color:var(--gold);}
+  .tierbadge.t3{background:rgba(154,111,224,.18);color:var(--violet);}
+  .step{display:flex;align-items:center;gap:6px;flex:none;}
+  .qty{min-width:46px;text-align:center;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;}
+  .qty small{font-size:10px;color:var(--sub);font-weight:600;display:block;}
+  .btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:#0c1017;color:var(--ink);
+    font-size:19px;font-weight:800;display:grid;place-items:center;cursor:pointer;user-select:none;
+    transition:transform .06s, background .15s, border-color .15s;}
   .btn:active{transform:scale(.86);}
   .btn.minus:active{background:var(--hp-dim);border-color:var(--hp);}
   .btn.plus:active{background:#243b5c;border-color:var(--mp);}
+  .gauge{width:100%;height:5px;border-radius:3px;background:#0c1017;border:1px solid var(--line);
+    margin-top:5px;overflow:hidden;}
+  .gauge-fill{height:100%;background:var(--hp);transition:width .25s;}
+  .gauge-fill.low{background:var(--danger);}
   .mob.dead{opacity:.4;filter:grayscale(.7);}
   .mob.dead::before{background:#3a4557;}
   .mob.dead .nm{text-decoration:line-through;}
-  .slain{
-    position:absolute;right:12px;top:50%;transform:translateY(-50%) rotate(-8deg);
-    font-size:11px;font-weight:900;letter-spacing:.15em;color:var(--gold);
-    border:1.5px solid var(--gold);border-radius:6px;padding:2px 8px;
-    opacity:0;transition:opacity .25s;pointer-events:none;
-  }
+  .slain{position:absolute;right:12px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:10px;font-weight:900;
+    letter-spacing:.12em;color:var(--gold);border:1.5px solid var(--gold);border-radius:6px;padding:2px 7px;
+    opacity:0;transition:opacity .25s;pointer-events:none;}
   .mob.dead .slain{opacity:1;}
-  .mob.dead .step{opacity:.5;}
   @keyframes hit{0%{background:rgba(224,96,58,.25);}100%{background:transparent;}}
   .mob.hit{animation:hit .35s;}
-  /* add button */
-  .addbtn{
-    margin-top:11px;width:100%;border:1px dashed var(--line);border-radius:12px;
-    background:transparent;color:var(--sub);padding:11px;font-size:12.5px;font-weight:700;
-    cursor:pointer;letter-spacing:.06em;transition:border-color .15s,color .15s;
-  }
-  .addbtn:active{border-color:var(--gold);color:var(--gold);}
-  /* footer actions */
-  .actions{display:flex;gap:8px;margin-top:16px;}
-  .act{
-    flex:1;border:1px solid var(--line);border-radius:11px;background:var(--panel);
-    color:var(--ink);padding:11px;font-size:12px;font-weight:700;cursor:pointer;
-    letter-spacing:.04em;transition:background .15s,border-color .15s;
-  }
-  .act:active{background:var(--panel2);border-color:var(--gold-dim);}
-  .act.danger{color:var(--danger);}
-  .note{
-    margin-top:14px;border:1px dashed var(--line);border-radius:12px;
-    padding:11px 13px;font-size:11.5px;color:var(--sub);line-height:1.75;background:rgba(255,255,255,.015);
-  }
-  .foot{
-    margin-top:18px;text-align:center;font-size:11px;color:var(--sub);
-    line-height:1.7;letter-spacing:.06em;
-  }
+
+  /* buy list */
+  .buygrouptitle{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:.08em;margin:14px 2px 8px;}
+  .buygrouptitle:first-child{margin-top:2px;}
+  .buygrouptitle.must{color:var(--danger);}  .buyrow{display:flex;align-items:center;gap:12px;border:1px solid var(--danger);border-radius:14px;
+    background:linear-gradient(180deg,#241615,#1a1210);padding:12px 13px;margin-bottom:9px;}
+  .buyrow.mood{border-color:var(--gold-dim);background:linear-gradient(180deg,#221d13,#191510);}
+  .buyrow.mood .left{color:var(--gold);}
+  .buyrow .icon{border-color:var(--danger);}
+  .buyrow .nm{font-size:14px;font-weight:800;}
+  .buyrow .nt{font-size:11px;color:var(--sub);margin-top:2px;}
+  .buyrow .left{margin-left:auto;text-align:right;font-size:11px;color:var(--danger);font-weight:800;}
+  .empty{text-align:center;color:var(--sub);font-size:12.5px;padding:30px 10px;line-height:1.8;}
+  .empty b{color:var(--hp);}
+
+  .foot{margin-top:20px;text-align:center;font-size:10.5px;color:var(--sub);line-height:1.7;letter-spacing:.05em;}
   .foot b{color:var(--gold);font-weight:700;}
+  .note{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:11px 13px;font-size:11px;
+    color:var(--sub);line-height:1.75;background:rgba(255,255,255,.015);}
 </style>
 </head>
 <body>
@@ -177,14 +107,14 @@
     <div class="sigil">⚔</div>
     <div>
       <h1>KITCHEN QUEST</h1>
-      <div class="loc">DUNGEON ── 台所迷宮</div>
+      <div class="loc">DUNGEON —— 台所迷宮</div>
     </div>
-    <div class="tag" id="progress">討伐 0 / 0</div>
+    <div class="tag">v0.2</div>
   </div>
 
   <div class="tabs" id="tabs"></div>
 
-  <div class="status">
+  <div id="statusWrap" class="status">
     <div class="stat" id="s-total"><b>0</b><span>MOBS</span></div>
     <div class="stat cleared" id="s-clear"><b>0</b><span>SLAIN</span></div>
     <div class="stat low" id="s-low"><b>0</b><span>危険域</span></div>
@@ -192,216 +122,269 @@
 
   <div class="roster" id="roster"></div>
 
-  <button class="addbtn" id="addbtn">＋ モブを補充・追加（買い足し）</button>
-
-  <div class="actions">
-    <button class="act" id="copybtn">📋 Sheetにコピー</button>
-    <button class="act danger" id="resetbtn">↺ 迷宮リセット</button>
+  <div class="note" id="footNote">
+    ピッ = <b style="color:var(--hp)">−1 討伐</b> ／ ピッ = <b style="color:var(--mp)">+1 補充</b>。0になれば「討伐済み」。<br>
+    ※数値はこの端末・このブラウザ内だけに保存されます（localStorage）。他端末とは同期しません。<br>
+    ※絵文字は品目ごとに手動設定。未設定の新規モブは既定で📦が表示されます。
   </div>
 
-  <div class="note">
-    ⚔ <b style="color:var(--danger)">−1</b>＝討伐（消費）／ <b style="color:var(--mp)">＋1</b>＝補充。0で <b>SLAIN</b>。<br>
-    記録はこの端末に自動保存。開けば前回の続き。Sheetは「📋コピー→貼る」で気が向いた時だけ残せば十分。
-  </div>
-
-  <div class="foot">
-    台所迷宮 ── <b>Kitchen Quest</b><br>
-    赤帯＝要討伐 ／ 金帯＝注意 ／ 青帯＝備蓄
-  </div>
+  <div class="foot" id="footTag"></div>
 
 <script>
-  /* ---------- 初期データ（防具庫の初期配置）---------- */
-  const AREAS = ["冷蔵庫","冷凍庫","パントリー","その他"];
-  const DEFAULTS = {
-    "冷蔵庫":[
-      {ic:"🍜",nm:"豚みそ（鶴翔高校作）",nt:"炒め物のコク・複数回いける",qty:1,unit:"",pri:"mid"},
-      {ic:"🍳",nm:"卵",nt:"他人丼の要",qty:4,unit:"個",pri:"low"},
-      {ic:"🥛",nm:"豆乳",nt:"朝食の繋ぎ",qty:1,unit:"L",pri:"low"},
-      {ic:"🍺",nm:"ビール（350mL）",nt:"15日BBQ戦支度",qty:5,unit:"本",pri:"low"},
-      {ic:"⚡",nm:"栄養ドリンク",nt:"疲れた朝の切り札",qty:3,unit:"本",pri:"low"},
-      {ic:"🥢",nm:"めんつゆ「唐船峡」",nt:"指宿の甘だし・お気に入り",qty:1,unit:"",pri:"low"},
-      {ic:"🍝",nm:"スパ（乾麺）",nt:"13/14日 昼枠",qty:2,unit:"束",pri:"mid"},
-      {ic:"🧀",nm:"とろけるチーズ",nt:"ひき肉パスタ用",qty:1,unit:"数枚",pri:"low"},
-      {ic:"🫘",nm:"納豆",nt:"あと1食",qty:1,unit:"食",pri:"high"},
-      {ic:"🍥",nm:"焼きそば麺",nt:"16日 昼候補",qty:1,unit:"",pri:"mid"},
-      {ic:"🛸",nm:"UFO",nt:"考えたくない日の逃げ",qty:1,unit:"",pri:"mid"},
-      {ic:"🥬",nm:"千切りキャベツ",nt:"日持ちせず・早めに",qty:1,unit:"食",pri:"high"},
-      {ic:"🍌",nm:"バナナ",nt:"おやつ・熟すの早い",qty:1,unit:"",pri:"high"},
-      {ic:"🥤",nm:"コーラ（500mL）",nt:"",qty:1,unit:"",pri:"low"},
+  // ---- データ本体 ----
+  // pri: high / mid / low
+  const DATA = {
+    "冷蔵庫": [
+      {ic:"🍜", nm:"豚みそ（鶴翔高校作）", nt:"", qty:4, unit:"食分", pri:"mid", tier:3, warn:0},
+      {ic:"🍳", nm:"卵", nt:"", qty:12, unit:"個", pri:"low", tier:1, warn:4},
+      {ic:"🥛", nm:"豆乳", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:0},
+      {ic:"🍺", nm:"ビール（350mL）", nt:"", qty:5, unit:"本", pri:"low", tier:3, warn:0},
+      {ic:"⚡", nm:"栄養ドリンク", nt:"", qty:3, unit:"本", pri:"low", tier:3, warn:0},
+      {ic:"🥢", nm:"めんつゆ「唐船峡」", nt:"", qty:400, unit:"ml", pri:"low", step:100, tier:2, warn:100},
+      {ic:"🍝", nm:"スパ（乾麺）", nt:"", qty:8, unit:"束", pri:"low"},
+      {ic:"🧀", nm:"とろけるチーズ", nt:"", qty:9, unit:"枚", pri:"low", tier:1},
+      {ic:"🫘", nm:"納豆", nt:"", qty:4, unit:"パック", pri:"mid", tier:1},
+      {ic:"🍥", nm:"焼きそば麺", nt:"", qty:1, unit:"人前", pri:"mid", warn:0},
+      {ic:"🛸", nm:"UFO生麺", nt:"", qty:1, unit:"人前", pri:"mid", tier:3, warn:0},
+      {ic:"🥬", nm:"千切りキャベツ", nt:"", qty:1, unit:"食", pri:"high", warn:0},
+      {ic:"🍌", nm:"バナナ", nt:"", qty:5, unit:"本", pri:"high", tier:1},
+      {ic:"🥤", nm:"コーラ（500mL）", nt:"", qty:1, unit:"本", pri:"low", tier:3, warn:0},
+      {ic:"🍮", nm:"コーヒーゼリー", nt:"", qty:1, unit:"個", pri:"low", tier:3, warn:0},
+      {ic:"🥬", nm:"キャベツ", nt:"", qty:4, unit:"人前", pri:"high", tier:1},
+      {ic:"🧅", nm:"玉ねぎ", nt:"", qty:6, unit:"個", pri:"low", tier:1},
+      {ic:"🥕", nm:"人参", nt:"", qty:3, unit:"本", pri:"mid", tier:1},
+      {ic:"🍞", nm:"食パン", nt:"", qty:3, unit:"枚", pri:"high", tier:2},
+      {ic:"🥛", nm:"ヨーグルト", nt:"", qty:80, unit:"%", pri:"low", tier:1, warn:20},
+      {ic:"🥝", nm:"キウイ", nt:"", qty:5, unit:"日分", pri:"low", tier:1},
+      {ic:"🍎", nm:"りんご", nt:"", qty:4, unit:"日分", pri:"low", tier:1},
+      {ic:"🍢", nm:"うなぎ肝串", nt:"", qty:1, unit:"本", pri:"high", tier:3, warn:0},
+      {ic:"🥫", nm:"マヨネーズ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🥫", nm:"ブルドッグ中濃", nt:"", qty:130, unit:"%", pri:"low", tier:1, warn:20},
+      {ic:"🥫", nm:"ケチャップ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🧄", nm:"チューブにんにく", nt:"", qty:10, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🥫", nm:"醤油", nt:"", qty:120, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🥤", nm:"炭酸水", nt:"", qty:1, unit:"本", pri:"low", tier:3, warn:0},
+      {ic:"🧊", nm:"豆腐", nt:"", qty:1, unit:"丁", pri:"low", tier:2, warn:0},
     ],
-    "冷凍庫":[
-      {ic:"🍝",nm:"ミートスパの具（作り置き）",nt:"最後の一つ",qty:120,unit:"g",pri:"high"},
-      {ic:"🥩",nm:"A5すき焼き肉",nt:"あるルート・レア枠",qty:320,unit:"g",pri:"mid"},
-      {ic:"🥓",nm:"豚ひき肉（炒め済み）",nt:"パスタ・麻婆に",qty:1,unit:"袋",pri:"mid"},
-      {ic:"🐖",nm:"豚小間切れ",nt:"生姜焼き・他人丼",qty:1,unit:"人前",pri:"mid"},
-      {ic:"🥦",nm:"ブロッコリー",nt:"彩りの控え選手",qty:200,unit:"g",pri:"low"},
-      {ic:"🍚",nm:"米（作り置き）",nt:"レンチンで即",qty:1,unit:"セット",pri:"low"},
-      {ic:"🌿",nm:"小葱",nt:"薬味",qty:1,unit:"袋",pri:"low"},
-      {ic:"🍲",nm:"味噌汁用 揚げ",nt:"味噌汁に",qty:1,unit:"袋",pri:"low"},
-      {ic:"☕",nm:"コーヒー粉",nt:"食後の一杯",qty:300,unit:"g",pri:"low"},
+    "冷凍庫": [
+      {ic:"🍝", nm:"ミートソース（120g）", nt:"", qty:1, unit:"人前", pri:"high", tier:2},
+      {ic:"🥩", nm:"A5すき焼き肉", nt:"", qty:320, unit:"g", pri:"mid", tier:3, warn:0},
+      {ic:"🐷", nm:"豚ひき肉（炒め済み）", nt:"", qty:1, unit:"袋", pri:"mid", tier:3, warn:0},
+      {ic:"🐷", nm:"豚小間切れ", nt:"生姜焼き・他人丼", qty:1, unit:"人前", pri:"mid"},
+      {ic:"🥦", nm:"ブロッコリー", nt:"彩りの控え選手", qty:200, unit:"g", pri:"low"},
+      {ic:"🍚", nm:"ごはん（200g）", nt:"", qty:7, unit:"個", pri:"low", tier:1},
+      {ic:"🌿", nm:"小葱", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🍢", nm:"揚げ（みそ汁）", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"☕", nm:"コーヒー粉", nt:"", qty:300, unit:"g", pri:"low", tier:1, warn:200},
+      {ic:"🍔", nm:"ジョイフルハンバーグ", nt:"", qty:1, unit:"個", pri:"low", tier:3, warn:0},
+      {ic:"🍲", nm:"味噌", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🐷", nm:"豚ひき肉（生）", nt:"", qty:200, unit:"g", pri:"low", tier:3, warn:0},
     ],
-    "パントリー":[
-      {ic:"🍜",nm:"揖保乃糸",nt:"週2回登板・現役",qty:4,unit:"束",pri:"mid"},
-      {ic:"🥔",nm:"ポテチ のりしお",nt:"脱力の共犯／天かす代役",qty:1,unit:"袋",pri:"low"},
-      {ic:"🌶️",nm:"カラムーチョ（小）",nt:"つまみ",qty:2,unit:"袋",pri:"low"},
-      {ic:"🐟",nm:"シーチキン（ツナ缶）",nt:"津奈乃糸の要",qty:1,unit:"缶",pri:"low"},
-      {ic:"🍚",nm:"レンチン米180g（アイリスオーヤマ）",nt:"ローリングストック",qty:6,unit:"食",pri:"low"},
-      {ic:"🍛",nm:"レトルトカレー",nt:"二分で一膳",qty:1,unit:"人前",pri:"low"},
-      {ic:"🥫",nm:"レトルトミート具",nt:"ローリングストック",qty:2,unit:"個",pri:"low"},
-      {ic:"🍗",nm:"ビリヤニ（炊き込みの素）",nt:"鶏もも肉が要る・お預け中",qty:1,unit:"袋",pri:"mid"},
-      {ic:"🌾",nm:"雑穀米（小分け）",nt:"白米に混ぜて・派",qty:1,unit:"セット",pri:"low"},
+    "パントリー": [
+      {ic:"🍜", nm:"揖保乃糸", nt:"", qty:1, unit:"束", pri:"high", tier:3, warn:0},
+      {ic:"🥔", nm:"ポテチ のりしお", nt:"", qty:1, unit:"袋", pri:"low", tier:2, warn:0},
+      {ic:"🌶️", nm:"カラムーチョ（小）", nt:"つまみ", qty:2, unit:"袋", pri:"low", tier:3, warn:0},
+      {ic:"🐟", nm:"シーチキン（ツナ缶）", nt:"", qty:1, unit:"缶", pri:"low", tier:3, warn:0},
+      {ic:"🍚", nm:"ごはん（レトルト180g）", nt:"", qty:8, unit:"食", pri:"low"},
+      {ic:"🍛", nm:"レトルトカレー", nt:"二分で一膳", qty:1, unit:"人前", pri:"low", warn:0},
+      {ic:"🥘", nm:"レトルトミート具", nt:"", qty:2, unit:"個", pri:"low", tier:3, warn:0},
+      {ic:"🍚", nm:"ビリヤニ（炊き込みの素）", nt:"", qty:1, unit:"袋", pri:"mid", tier:3, warn:0},
+      {ic:"🌾", nm:"雑穀米", nt:"", qty:10, unit:"合分", pri:"low", tier:2, warn:4},
+      {ic:"🍤", nm:"えびせん（かっぱえびせん）", nt:"", qty:0, unit:"袋", pri:"low", tier:3, warn:0},
+      {ic:"🍅", nm:"トマト缶", nt:"", qty:1, unit:"缶", pri:"low", warn:0},
+      {ic:"🐟", nm:"かつお節", nt:"", qty:5, unit:"パック", pri:"low", tier:2},
+      {ic:"🍩", nm:"チョコドーナツ", nt:"8/12入庫", qty:8, unit:"個", pri:"low", tier:3, warn:0},
+      {ic:"🍯", nm:"はちみつ", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🧻", nm:"ドリップペーパー", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🧻", nm:"キッチンペーパー", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🥫", nm:"シナモン", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🥫", nm:"味の素", nt:"", qty:60, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🌿", nm:"わかめ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
+      {ic:"🥫", nm:"コンソメ", nt:"", qty:5, unit:"本", pri:"low", tier:1, warn:1},
+      {ic:"🫒", nm:"オリーブオイル", nt:"", qty:190, unit:"%", pri:"low", tier:1},
     ],
-    "その他":[
-      {ic:"🫑",nm:"パプリカ",nt:"朝採れ・自家菜園より",qty:1,unit:"",pri:"high"},
-      {ic:"🥫",nm:"鯖缶",nt:"※テーブルの脚を支える什器",qty:1,unit:"缶",pri:"low"},
+    "その他": [
+      {ic:"🫑", nm:"パプリカ", nt:"", qty:3, unit:"個", pri:"high", tier:3, warn:0},
+      {ic:"🐟", nm:"鯖缶", nt:"※テーブルの脚を支える什器", qty:1, unit:"缶", pri:"low", tier:3, warn:0},
     ],
   };
-  const priJP = {high:"要討伐",mid:"注意",low:"備蓄"};
-  const KEY = "kq_state_v1";
 
-  /* ---------- 保存・読込（localStorage、無ければメモリのみで動く）---------- */
-  function load(){
+  const priJP = {high:"要討伐", mid:"注意", low:"備蓄"};
+  const tierJP = {1:"常駐", 2:"常連", 3:"ゲスト"};
+  const CATS = Object.keys(DATA);
+  const BUY_TAB = "買い出し候補";
+  const BUY_THRESHOLD = 1; // 既定の警戒ライン（品目ごとに warn で上書き可）
+  function warnOf(mob){ return (typeof mob.warn === "number") ? mob.warn : BUY_THRESHOLD; }
+  let current = CATS[0];
+
+  const STORE_KEY = "kitchenQuest_v2_state";
+  function loadState(){
     try{
-      const raw = localStorage.getItem(KEY);
-      if(raw){ const s = JSON.parse(raw); if(s && s["冷蔵庫"]) return s; }
-    }catch(e){}
-    return JSON.parse(JSON.stringify(DEFAULTS));
+      const raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return {};
+      return JSON.parse(raw);
+    }catch(e){ return {}; }
   }
-  function save(){
-    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  function saveState(state){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  let state = loadState();
+  function keyOf(cat,i){ return cat+"::"+i; }
+  function getQty(cat,i,mob){
+    const k = keyOf(cat,i);
+    return (k in state) ? state[k] : mob.qty;
+  }
+  function setQty(cat,i,v){
+    state[keyOf(cat,i)] = v;
+    saveState(state);
   }
 
-  let state = load();
-  let active = "冷蔵庫";
-
+  // ---- タブ描画 ----
   const tabsEl = document.getElementById("tabs");
-  const rosterEl = document.getElementById("roster");
-
-  /* ---------- タブ描画 ---------- */
   function renderTabs(){
     tabsEl.innerHTML = "";
-    AREAS.forEach(a=>{
-      const alive = state[a].filter(m=>m.qty>0).length;
+    CATS.forEach(cat=>{
       const t = document.createElement("div");
-      t.className = "tab" + (a===active?" active":"");
-      t.innerHTML = a + `<span class="cnt">${alive}</span>`;
-      t.onclick = ()=>{ active=a; renderTabs(); renderRoster(); };
+      t.className = "tab" + (cat===current ? " active" : "");
+      t.innerHTML = `${cat}<span class="n">${DATA[cat].length}</span>`;
+      t.onclick = ()=>{ current = cat; render(); };
       tabsEl.appendChild(t);
     });
+    const buyCount = countBuyList();
+    const bt = document.createElement("div");
+    bt.className = "tab buy" + (current===BUY_TAB ? " active" : "");
+    bt.innerHTML = `🛒 買い出し候補<span class="n">${buyCount}</span>`;
+    bt.onclick = ()=>{ current = BUY_TAB; render(); };
+    tabsEl.appendChild(bt);
   }
 
-  /* ---------- ロスター描画 ---------- */
+  function countBuyList(){
+    let n = 0;
+    CATS.forEach(cat=>{
+      DATA[cat].forEach((mob,i)=>{
+        if(getQty(cat,i,mob) <= warnOf(mob)) n++;
+      });
+    });
+    return n;
+  }
+
+  // ---- ロスター描画 ----
+  const roster = document.getElementById("roster");
+  const statusWrap = document.getElementById("statusWrap");
+  const footNote = document.getElementById("footNote");
+
   function renderRoster(){
-    rosterEl.innerHTML = "";
-    state[active].forEach((m,i)=>{
+    roster.innerHTML = "";
+    if(current === BUY_TAB){
+      statusWrap.style.display = "none";
+      footNote.style.display = "none";
+      const items = [];
+      CATS.forEach(cat=>{
+        DATA[cat].forEach((mob,i)=>{
+          const q = getQty(cat,i,mob);
+          if(q <= warnOf(mob)) items.push({cat,mob,q});
+        });
+      });
+      if(items.length===0){
+        roster.innerHTML = `<div class="empty">在庫は十分。<br><b>買い出し候補は、今のところなし。</b><br>各品の"警戒ライン"を下回ると、ここに浮かび上がります。</div>`;
+        return;
+      }
+      function tierOf(mob){ return mob.tier || 2; }
+      const g1 = items.filter(x=>tierOf(x.mob)===1).sort((a,b)=> a.q - b.q);
+      const g2 = items.filter(x=>tierOf(x.mob)===2).sort((a,b)=> a.q - b.q);
+      const g3 = items.filter(x=>tierOf(x.mob)===3).sort((a,b)=> a.q - b.q);
+
+      function renderGroup(title, arr, tone){
+        if(arr.length===0) return;
+        const h = document.createElement("div");
+        h.className = "buygrouptitle" + (tone ? " "+tone : "");
+        h.textContent = title;
+        roster.appendChild(h);
+        arr.forEach(({cat,mob,q})=>{
+          const el = document.createElement("div");
+          el.className = "buyrow" + (tone==="mood" ? " mood" : "");
+          el.innerHTML = `
+            <div>
+              <div class="nm">${mob.nm}</div>
+              <div class="nt">${cat}</div>
+            </div>
+            <div class="left">残り${q}${mob.unit||""}</div>`;
+          roster.appendChild(el);
+        });
+      }
+      renderGroup("🔴 常駐（切らすと即困る・主力）", g1, "must");
+      renderGroup("🟠 常連（よく使う・そこそこ急ぎ）", g2, "");
+      renderGroup("🟡 ゲスト（気分次第・お気に入り枠）", g3, "mood");
+      return;
+    }
+
+    statusWrap.style.display = "flex";
+    footNote.style.display = "block";
+    const list = DATA[current];
+    const indexed = list.map((mob,i)=>({mob,i}));
+    indexed.sort((a,b)=>{
+      const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
+      if(ta !== tb) return ta - tb;
+      return a.i - b.i; // tierが同じなら元の並びを保つ
+    });
+    indexed.forEach(({mob,i})=>{
+      const q = getQty(current,i,mob);
+      const isLow = q > 0 && q <= warnOf(mob);
       const el = document.createElement("div");
-      el.className = "mob pri-" + m.pri + (m.qty<=0?" dead":"");
+      el.className = "mob" + (isLow ? " low-stock" : "") + (q<=0 ? " dead" : "");
       el.dataset.i = i;
       el.innerHTML = `
-        <div class="icon">${m.ic||"🍽"}</div>
         <div class="meta">
-          <div class="nm"><span class="pri ${m.pri}">${priJP[m.pri]}</span>${m.nm}</div>
-          <div class="nt">${m.nt || "&nbsp;"}</div>
+          <div class="nm"><span class="tierbadge t${mob.tier||2}">${tierJP[mob.tier||2]}</span>${mob.nm}</div>
+          ${mob.unit==="%" ? `<div class="gauge"><div class="gauge-fill${isLow?' low':''}" style="width:${Math.max(0,Math.min(100,q))}%"></div></div>` : ""}
         </div>
         <div class="step">
           <div class="btn minus" data-act="-1">−</div>
-          <div class="qty"><span class="q">${m.qty}</span><small>${m.unit||""}</small></div>
+          <div class="qty"><span class="q">${q}</span><small>${mob.unit||""}</small></div>
           <div class="btn plus" data-act="1">＋</div>
         </div>
         <div class="slain">SLAIN</div>`;
-      rosterEl.appendChild(el);
+      roster.appendChild(el);
     });
-    refresh();
+    refreshStatus();
   }
 
-  /* ---------- ステータス集計 ---------- */
-  function refresh(){
+  function refreshStatus(){
     let total=0, slain=0, low=0;
-    state[active].forEach(m=>{
+    const list = DATA[current];
+    list.forEach((mob,i)=>{
+      const q = getQty(current,i,mob);
       total++;
-      if(m.qty<=0) slain++;
-      else if(m.qty<=1) low++;
+      if(q<=0) slain++;
+      else if(q<=warnOf(mob)) low++;
     });
-    document.getElementById("s-total").querySelector("b").textContent = total - slain;
-    document.getElementById("s-clear").querySelector("b").textContent = slain;
-    document.getElementById("s-low").querySelector("b").textContent = low;
-
-    // ヘッダー：全エリア合計の討伐進捗
-    let all=0, dead=0;
-    AREAS.forEach(a=>state[a].forEach(m=>{ all++; if(m.qty<=0) dead++; }));
-    document.getElementById("progress").textContent = `討伐 ${dead} / ${all}`;
+    document.querySelector("#s-total b").textContent = total - slain;
+    document.querySelector("#s-clear b").textContent = slain;
+    document.querySelector("#s-low b").textContent = low;
   }
 
-  /* ---------- −／＋ 操作 ---------- */
-  rosterEl.addEventListener("click", e=>{
+  roster.addEventListener("click", e=>{
     const btn = e.target.closest(".btn");
     if(!btn) return;
     const mobEl = btn.closest(".mob");
     const i = +mobEl.dataset.i;
-    const m = state[active][i];
-    m.qty = Math.max(0, m.qty + (+btn.dataset.act));
-
-    // 表示更新
-    mobEl.querySelector(".q").textContent = m.qty;
-    mobEl.classList.toggle("dead", m.qty<=0);
-    mobEl.classList.remove("pri-high","pri-mid","pri-low");
-    mobEl.classList.add("pri-"+m.pri);
-
-    if(+btn.dataset.act < 0){
-      mobEl.classList.remove("hit"); void mobEl.offsetWidth; mobEl.classList.add("hit");
-    }
-    refresh();
-    renderTabs();
-    save();
+    const mob = DATA[current][i];
+    const step = mob.step || 1;
+    const dir = +btn.dataset.act; // -1 or 1
+    let v = getQty(current,i,mob) + (dir * step);
+    if(v<0) v=0;
+    setQty(current,i,v);
+    render(); // 数値・バッジ・買い出し候補・危険域を丸ごと再計算
   });
 
-  /* ---------- 補充・追加（ズボラ入力：promptで最小限）---------- */
-  document.getElementById("addbtn").addEventListener("click", ()=>{
-    const nm = prompt("追加するモブ名は？（例：鶏もも肉）");
-    if(!nm) return;
-    const qtyStr = prompt("いくつ？（数字だけ）", "1");
-    const qty = Math.max(0, parseInt(qtyStr,10) || 1);
-    const unit = prompt("単位は？（無ければ空でOK 例：個 / g / 袋）", "") || "";
-    state[active].push({ic:"🍽",nm:nm,nt:"補充分",qty:qty,unit:unit,pri:"mid"});
-    save();
+  function render(){
     renderTabs();
     renderRoster();
-  });
+    document.getElementById("footTag").textContent =
+      current===BUY_TAB ? "在庫が薄いものを自動で炙り出す、警戒リスト" : `${current}ダンジョン ── Kitchen Quest`;
+  }
 
-  /* ---------- Sheet用にコピー（TSV）---------- */
-  document.getElementById("copybtn").addEventListener("click", ()=>{
-    const today = new Date().toISOString().slice(0,10);
-    let rows = ["category\titem\tqty\tunit\tnote\tpriority\tupdated"];
-    AREAS.forEach(a=>state[a].forEach(m=>{
-      const p = m.pri==="high"?"高":m.pri==="mid"?"中":"低";
-      rows.push([a,m.nm,m.qty,m.unit,m.nt,p,today].join("\t"));
-    }));
-    const tsv = rows.join("\n");
-    (navigator.clipboard ? navigator.clipboard.writeText(tsv) : Promise.reject())
-      .then(()=>alert("コピーした。dungeon_quest_inventory シートに貼り付ければ記録が残る。"))
-      .catch(()=>{
-        // クリップボード不可のフォールバック
-        const ta=document.createElement("textarea");ta.value=tsv;document.body.appendChild(ta);
-        ta.select();try{document.execCommand("copy");alert("コピーした（互換モード）。シートに貼れる。");}
-        catch(_){prompt("この内容をコピーしてシートに貼って：", tsv);}
-        document.body.removeChild(ta);
-      });
-  });
-
-  /* ---------- リセット ---------- */
-  document.getElementById("resetbtn").addEventListener("click", ()=>{
-    if(confirm("迷宮を初期配置に戻す？（今の在庫記録は消える）")){
-      state = JSON.parse(JSON.stringify(DEFAULTS));
-      save();
-      active = "冷蔵庫";
-      renderTabs();
-      renderRoster();
-    }
-  });
-
-  /* ---------- 起動 ---------- */
-  renderTabs();
-  renderRoster();
+  render();
 </script>
 </body>
 </html>
