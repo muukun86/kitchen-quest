@@ -2,6 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -156,6 +159,14 @@
   /* ---- フッター ---- */
   .foot{margin-top:20px;text-align:center;font-size:10.5px;color:var(--sub);line-height:1.7;letter-spacing:.05em;}
   .copyright{margin-top:8px;text-align:center;font-size:9.5px;color:#3a5a80;letter-spacing:.14em;}
+  .manual-toggle{display:block;margin:16px auto 0;padding:5px 16px;border:1px solid var(--sys);border-radius:3px;
+    background:rgba(20,44,78,0.3);color:var(--sys);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.12em;
+    text-shadow:0 0 6px var(--sys-glow);}
+  .manual-toggle:active{transform:scale(.96);}
+  .reload-btn{display:block;width:100%;margin:14px 0 4px;padding:11px;border:1px solid var(--hp);border-radius:3px;
+    background:rgba(20,60,54,0.3);color:var(--hp);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.08em;
+    text-shadow:0 0 6px var(--hp-glow);box-shadow:0 0 10px rgba(47,191,154,0.15);}
+  .reload-btn:active{transform:scale(.97);}
   .copyright .ver{color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .foot b{color:var(--sys);font-weight:700;}
   .note{margin-top:14px;border:1px solid var(--line);border-radius:3px;padding:11px 13px;font-size:11px;
@@ -268,15 +279,16 @@
 
   <button class="btn-add-item" id="btnAddItem">＋ 未知の品目を検出・登録</button>
 
-  <div class="note" id="footNote">
-    <b style="color:var(--danger)">−</b> で消費 ／ <b style="color:var(--sys)">＋</b> で補充。0になると「EMPTY」。％ゲージは<b>スライダーで直接調整</b>（5%刻み）。<br>
+  <button class="manual-toggle" id="manualToggle" onclick="toggleManual()">MANUAL ▾</button>
+  <div class="note" id="footNote" style="display:none;">
+    在庫は<b>スライダーで直接調整</b>。0になると「EMPTY」。<br>
     在庫の色 ── <b style="color:var(--sys)">青＝通常</b> ／ <b style="color:var(--warn)">橙＝警戒</b> ／ <b style="color:var(--danger)">赤＝危険（残りわずか）</b>。<br>
-    ※数値はこの端末・このブラウザ内だけに保存されます（localStorage）。他端末とは同期しません。<br>
-    ※絵文字は品目ごとに手動設定。未設定の新規モブは既定で📦が表示されます。
+    表示軸 ── <b>ALL</b>（全品目）／<b>RANK</b>（S/A/G別）／<b>AREA</b>（保管場所別）。<br>
+    ※数値はこの端末・このブラウザ内だけに保存されます（localStorage）。他端末とは同期しません。
   </div>
 
-  <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.8</span> ── © 2026 muukun</div>
+  <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.9</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -528,6 +540,14 @@
   }
   function closeAddItemModal(){ document.getElementById("addItemModal").classList.remove("show"); }
   window.closeAddItemModal = closeAddItemModal;
+  function toggleManual(){
+    const n = document.getElementById("footNote");
+    const t = document.getElementById("manualToggle");
+    const open = n.style.display === "none";
+    n.style.display = open ? "block" : "none";
+    t.textContent = open ? "MANUAL ▴" : "MANUAL ▾";
+  }
+  window.toggleManual = toggleManual;
 
   function setMeal(v){
     document.getElementById("mealM").checked = !!(v & 4);
@@ -926,18 +946,6 @@
   function render(){
     renderTabs();
     renderRoster();
-    let footLabel;
-    if(current===BUY_TAB){
-      footLabel = "在庫が薄いものを自動で炙り出す、警戒リスト";
-    } else if(viewMode==="rank"){
-      const r = RANKS[currentRank] || RANK_FALLBACK;
-      footLabel = `${r.mark} ── 全エリア横断`;
-    } else if(viewMode==="all"){
-      footLabel = `全品目 ── 台所のすべて`;
-    } else {
-      footLabel = `${catAbbr(current)}`;
-    }
-    document.getElementById("footTag").textContent = footLabel;
   }
 
   document.getElementById("btnAddItem").addEventListener("click", openAddItemModal);
