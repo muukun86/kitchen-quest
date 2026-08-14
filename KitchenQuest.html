@@ -55,14 +55,18 @@
 
   /* ---- ステータス ---- */
   .status{display:flex;gap:6px;margin:2px 2px 12px;}
-  .stat{flex:1;border:1px solid var(--line);border-radius:3px;background:rgba(20,44,78,0.35);
-    padding:5px 8px;display:flex;align-items:baseline;justify-content:center;gap:5px;}
-  .stat b{font-size:16px;font-weight:900;line-height:1;color:var(--sys);text-shadow:0 0 8px var(--sys-glow);}
-  .stat span{font-size:9px;color:var(--sub);letter-spacing:.06em;}
-  .stat.cleared{border-color:rgba(110,231,200,0.4);background:rgba(20,60,54,0.32);}
-  .stat.cleared b{color:var(--hp);text-shadow:0 0 10px var(--hp-glow);}
-  .stat.low{border-color:rgba(255,106,90,0.45);background:rgba(60,22,22,0.35);}
-  .stat.low b{color:var(--danger);text-shadow:0 0 10px var(--danger-glow);}
+  .stat{flex:1;border:1px solid var(--line);border-radius:3px;background:rgba(20,44,78,0.3);
+    padding:5px 6px;display:flex;align-items:center;justify-content:center;gap:5px;}
+  .stat .mk{font-size:10px;font-weight:900;font-family:"Segoe UI",system-ui;opacity:.85;}
+  .stat b{font-size:16px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;}
+  .stat.sF{border-color:rgba(127,200,255,0.45);background:rgba(20,44,78,0.35);}
+  .stat.sF .mk,.stat.sF b{color:var(--sys);text-shadow:0 0 8px var(--sys-glow);}
+  .stat.sG{border-color:rgba(110,231,200,0.42);background:rgba(20,60,54,0.3);}
+  .stat.sG .mk,.stat.sG b{color:var(--hp);text-shadow:0 0 8px var(--hp-glow);}
+  .stat.sL{border-color:rgba(255,169,77,0.45);background:rgba(48,34,14,0.32);}
+  .stat.sL .mk,.stat.sL b{color:var(--warn);text-shadow:0 0 8px var(--warn-glow);}
+  .stat.sE{border-color:rgba(255,106,90,0.45);background:rgba(60,22,22,0.32);}
+  .stat.sE .mk,.stat.sE b{color:var(--danger);text-shadow:0 0 8px var(--danger-glow);}
 
   /* ---- モブ（品目行） ---- */
   .roster{display:flex;flex-direction:column;gap:9px;}
@@ -121,7 +125,7 @@
   .stock-slider.warn::-moz-range-thumb{background:#fff2e0;box-shadow:0 0 8px var(--warn-glow),0 0 2px var(--warn);}
   .stock-slider.low::-moz-range-thumb{background:#ffe6e2;box-shadow:0 0 8px var(--danger-glow),0 0 2px var(--danger);}
 
-  /* ---- 討伐済み ---- */
+  /* ---- EMPTY（在庫0） ---- */
   .mob.dead{opacity:.4;filter:grayscale(.7);border-left-color:#3a5578;}
   .mob.dead .nm{text-decoration:line-through;}
   .slain{position:absolute;right:12px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:10px;font-weight:900;
@@ -237,22 +241,23 @@
   </div>
 
   <div id="statusWrap" class="status">
-    <div class="stat" id="s-total"><b>0</b><span>MOBS</span></div>
-    <div class="stat cleared" id="s-clear"><b>0</b><span>SLAIN</span></div>
-    <div class="stat low" id="s-low"><b>0</b><span>危険域</span></div>
+    <div class="stat sF" id="s-full"><span class="mk">F</span><b>0</b></div>
+    <div class="stat sG" id="s-good"><span class="mk">G</span><b>0</b></div>
+    <div class="stat sL" id="s-low"><span class="mk">L</span><b>0</b></div>
+    <div class="stat sE" id="s-empty"><span class="mk">E</span><b>0</b></div>
   </div>
 
   <div class="roster" id="roster"></div>
 
   <div class="note" id="footNote">
-    ピッ = <b style="color:var(--danger)">−1 討伐</b> ／ ピッ = <b style="color:var(--sys)">+1 補充</b>。0になれば「討伐済み」。％ゲージは<b>スライダーで直接調整</b>（5%刻み）。<br>
+    <b style="color:var(--danger)">−</b> で消費 ／ <b style="color:var(--sys)">＋</b> で補充。0になると「EMPTY」。％ゲージは<b>スライダーで直接調整</b>（5%刻み）。<br>
     在庫の色 ── <b style="color:var(--sys)">青＝通常</b> ／ <b style="color:var(--warn)">橙＝警戒</b> ／ <b style="color:var(--danger)">赤＝危険（残りわずか）</b>。<br>
     ※数値はこの端末・このブラウザ内だけに保存されます（localStorage）。他端末とは同期しません。<br>
     ※絵文字は品目ごとに手動設定。未設定の新規モブは既定で📦が表示されます。
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.0</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.1</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -382,7 +387,6 @@
     ],
   };
 
-  const priJP = {high:"要討伐", mid:"注意", low:"備蓄"};
   const tierJP = {1:"常駐", 2:"常連", 3:"ゲスト"};
   // ランク定義: tier番号 → {文字, ラベル, CSS色クラス}
   // 将来ABCを間に足すときは 3:{mark:"B",...}, 4:{mark:"C",...} を追記するだけ。
@@ -654,14 +658,14 @@
           <div class="qty"><span class="q">${q}</span><small>${mob.unit||""}</small></div>
           <div class="btn plus" data-act="1">＋</div>
         </div>
-        <div class="slain">SLAIN</div>`;
+        <div class="slain">EMPTY</div>`;
       roster.appendChild(el);
     });
     refreshStatus();
   }
 
   function refreshStatus(){
-    let total=0, slain=0, low=0;
+    let full=0, good=0, low=0, empty=0;
     let list;
     if(viewMode === "rank"){
       list = allEntries().filter(e => (e.mob.tier || 2) === currentRank)
@@ -673,13 +677,16 @@
     }
     list.forEach(({mob,cat,i})=>{
       const q = getQty(cat,i,mob);
-      total++;
-      if(q<=0) slain++;
-      else if(q<=warnOf(mob)) low++;
+      const w = warnOf(mob);
+      if(q <= 0) empty++;              // E 空（赤）
+      else if(q <= w) low++;           // L 不足（オレンジ）
+      else if(q <= w*2) good++;        // G 充足（緑）
+      else full++;                     // F 充分（青）
     });
-    document.querySelector("#s-total b").textContent = total - slain;
-    document.querySelector("#s-clear b").textContent = slain;
+    document.querySelector("#s-full b").textContent = full;
+    document.querySelector("#s-good b").textContent = good;
     document.querySelector("#s-low b").textContent = low;
+    document.querySelector("#s-empty b").textContent = empty;
   }
 
   // 行要素から {cat, i, mob} を取り出す共通関数（場所/ランク両モード対応）
