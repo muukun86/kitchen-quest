@@ -184,7 +184,7 @@
   .form-actions .btn-ok{background:rgba(56,138,221,0.25);color:var(--sys);border-color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .form-actions .btn-ok:active{transform:scale(.95);}
   .form-actions .btn-cancel{background:transparent;color:var(--sub);}
-  .btn-add-item{margin-left:auto;padding:6px 12px;border:1px solid var(--sys);border-radius:3px;background:rgba(20,44,78,0.4);color:var(--sys);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.05em;text-shadow:0 0 6px var(--sys-glow);box-shadow:0 0 10px rgba(56,138,221,0.2);}
+  .btn-add-item{display:block;width:100%;margin:16px 0 4px;padding:11px;border:1px solid var(--sys);border-radius:3px;background:rgba(20,44,78,0.4);color:var(--sys);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.08em;text-shadow:0 0 6px var(--sys-glow);box-shadow:0 0 10px rgba(56,138,221,0.2);}
   .btn-add-item:active{transform:scale(.95);}
 
   /* ---- 表示軸トグル ---- */
@@ -235,9 +235,8 @@
     </div>
   </div>
 
-  <div style="display:flex;align-items:center;margin:10px 0;">
-    <div class="tabs" id="tabs" style="flex:1;"></div>
-    <button class="btn-add-item" id="btnAddItem">＋ 未知の品目</button>
+  <div style="margin:10px 0;">
+    <div class="tabs" id="tabs"></div>
   </div>
 
   <div id="statusWrap" class="status">
@@ -249,6 +248,8 @@
 
   <div class="roster" id="roster"></div>
 
+  <button class="btn-add-item" id="btnAddItem">＋ 未知の品目を検出・登録</button>
+
   <div class="note" id="footNote">
     <b style="color:var(--danger)">−</b> で消費 ／ <b style="color:var(--sys)">＋</b> で補充。0になると「EMPTY」。％ゲージは<b>スライダーで直接調整</b>（5%刻み）。<br>
     在庫の色 ── <b style="color:var(--sys)">青＝通常</b> ／ <b style="color:var(--warn)">橙＝警戒</b> ／ <b style="color:var(--danger)">赤＝危険（残りわずか）</b>。<br>
@@ -257,7 +258,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.2</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.3</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -413,6 +414,9 @@
   const BUY_TAB = "買い出し候補";
   // 場所ごとの絵文字（ランクモードで各行に現在地を表示）
   const CAT_ICON = {"冷蔵庫":"❄", "冷凍庫":"🧊", "パントリー":"📦", "その他":"🔖"};
+  // エリア名の英略記（表示専用。データキーは日本語のまま）
+  const CAT_ABBR = {"冷蔵庫":"FRG", "冷凍庫":"FRZ", "パントリー":"PNT", "その他":"ETC"};
+  function catAbbr(cat){ return CAT_ABBR[cat] || cat; }
   // 表示軸モード: "place"(場所) / "rank"(ランク)
   let viewMode = "all";
   // ランクモードのタブ（RANKSのキー順＝S,A,…,G）。買い出しは共通で末尾。
@@ -501,7 +505,7 @@
         const t = document.createElement("div");
         t.className = "tab" + (current===cat && current!==BUY_TAB ? " active" : "");
         const count = (DATA[cat].length) + (customItems[cat]?.length || 0);
-        t.innerHTML = `${cat}<span class="n">${count}</span>`;
+        t.innerHTML = `${catAbbr(cat)}<span class="n">${count}</span>`;
         t.onclick = ()=>{ current = cat; render(); };
         tabsEl.appendChild(t);
       });
@@ -646,7 +650,7 @@
       el.className = "mob" + stateCls;
       el.dataset.i = i;
       el.dataset.cat = cat;
-      const catLabel = showCatLabel ? `<div class="catloc">${CAT_ICON[cat]||""} ${cat}</div>` : "";
+      const catLabel = showCatLabel ? `<div class="catloc">${CAT_ICON[cat]||""} ${catAbbr(cat)}</div>` : "";
       el.innerHTML = `
         <div class="meta">
           <div class="nm"><span class="tierbadge ${rankOf(mob).cls}" title="${rankOf(mob).jp}">${rankOf(mob).mark}</span>${mob.nm}</div>
@@ -752,7 +756,7 @@
     } else if(viewMode==="all"){
       footLabel = `全品目 ── 台所のすべて`;
     } else {
-      footLabel = `${current}`;
+      footLabel = `${catAbbr(current)}`;
     }
     document.getElementById("footTag").textContent = footLabel;
   }
