@@ -109,6 +109,22 @@
   .foot b{color:var(--gold);font-weight:700;}
   .note{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:11px 13px;font-size:11px;
     color:var(--sub);line-height:1.75;background:rgba(255,255,255,.015);}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;place-items:center;justify-content:center;}
+  .modal.show{display:grid;}
+  .modal-content{background:linear-gradient(180deg,var(--panel2),var(--panel));border:2px solid var(--gold);border-radius:16px;padding:20px;width:90%;max-width:420px;box-shadow:0 0 40px rgba(231,184,79,.4);}
+  .modal-title{font-size:16px;font-weight:900;color:var(--gold);letter-spacing:.1em;margin-bottom:16px;text-align:center;}
+  .modal-form{display:flex;flex-direction:column;gap:12px;}
+  .form-group{display:flex;flex-direction:column;gap:4px;}
+  .form-group label{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.08em;}
+  .form-group input,.form-group select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-family:inherit;font-size:13px;}
+  .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 12px rgba(231,184,79,.3);}
+  .form-actions{display:flex;gap:8px;margin-top:12px;}
+  .form-actions button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
+  .form-actions .btn-ok{background:var(--hp);color:#000;border-color:var(--hp);}
+  .form-actions .btn-ok:active{transform:scale(.95);}
+  .form-actions .btn-cancel{background:transparent;color:var(--sub);}
+  .btn-add-item{margin-left:auto;padding:6px 12px;border:1px solid var(--gold);border-radius:8px;background:transparent;color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.05em;}
+  .btn-add-item:active{transform:scale(.95);}
 </style>
 </head>
 <body>
@@ -122,7 +138,10 @@
     <div class="tag">v0.3</div>
   </div>
 
-  <div class="tabs" id="tabs"></div>
+  <div style="display:flex;align-items:center;margin:10px 0;">
+    <div class="tabs" id="tabs" style="flex:1;"></div>
+    <button class="btn-add-item" id="btnAddItem">＋ 未知の品目</button>
+  </div>
 
   <div id="statusWrap" class="status">
     <div class="stat" id="s-total"><b>0</b><span>MOBS</span></div>
@@ -139,6 +158,55 @@
   </div>
 
   <div class="foot" id="footTag"></div>
+
+  <div class="modal" id="addItemModal">
+    <div class="modal-content">
+      <div class="modal-title">❌ 未知の品目を検出</div>
+      <div class="modal-form">
+        <div class="form-group">
+          <label>絵文字</label>
+          <input type="text" id="itemIcon" maxlength="2" placeholder="🐟" value="📦">
+        </div>
+        <div class="form-group">
+          <label>品名</label>
+          <input type="text" id="itemName" placeholder="新しい品目">
+        </div>
+        <div class="form-group">
+          <label>数量</label>
+          <input type="number" id="itemQty" value="1" min="0">
+        </div>
+        <div class="form-group">
+          <label>単位</label>
+          <input type="text" id="itemUnit" placeholder="個 / 缶 / ml など">
+        </div>
+        <div class="form-group">
+          <label>カテゴリ</label>
+          <select id="itemCat">
+            <option value="冷蔵庫">冷蔵庫</option>
+            <option value="冷凍庫">冷凍庫</option>
+            <option value="パントリー">パントリー</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ティア</label>
+          <select id="itemTier">
+            <option value="1">常駐（切らすと即困る）</option>
+            <option value="2" selected>常連（よく使う）</option>
+            <option value="3">ゲスト（気分次第）</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>警告ライン（この値以下で買い出し候補に表示）</label>
+          <input type="number" id="itemWarn" value="0" min="0">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="closeAddItemModal()">閉じる</button>
+        <button class="btn-ok" onclick="submitNewItem()">台所に追加</button>
+      </div>
+    </div>
+  </div>
 
 <script>
   // ---- データ本体 ----
@@ -212,7 +280,7 @@
       {ic:"🌿", nm:"わかめ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
       {ic:"🥫", nm:"コンソメ", nt:"", qty:5, unit:"本", pri:"low", tier:1, warn:1},
       {ic:"🫒", nm:"オリーブオイル", nt:"", qty:190, unit:"%", pri:"low", tier:1},
-      {ic:"🐟", nm:"鯖缶", nt:"※テーブルの脚を支える什器", qty:1, unit:"缶", pri:"low", tier:3, warn:0},,
+      {ic:"🐟", nm:"鯖缶", nt:"※テーブルの脚を支える什器", qty:1, unit:"缶", pri:"low", tier:3, warn:0},
     ],
     "その他": [
       {ic:"🫑", nm:"パプリカ", nt:"", qty:3, unit:"個", pri:"high", tier:3, warn:0},
@@ -239,6 +307,45 @@
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
   }
   let state = loadState();
+  let customItems = loadCustomItems();
+  let currentList = []; // 現在のカテゴリの標準+カスタム品目マージリスト
+  
+  function loadCustomItems(){
+    try{
+      const raw = localStorage.getItem("kitchenQuest_customItems");
+      if(!raw) return {};
+      return JSON.parse(raw);
+    }catch(e){ return {}; }
+  }
+  function saveCustomItems(){
+    try{ localStorage.setItem("kitchenQuest_customItems", JSON.stringify(customItems)); }catch(e){}
+  }
+  
+  function openAddItemModal(){ document.getElementById("addItemModal").classList.add("show"); }
+  function closeAddItemModal(){ document.getElementById("addItemModal").classList.remove("show"); }
+  window.closeAddItemModal = closeAddItemModal;
+  
+  function submitNewItem(){
+    const ic = document.getElementById("itemIcon").value.trim() || "📦";
+    const nm = document.getElementById("itemName").value.trim();
+    const qty = +document.getElementById("itemQty").value || 1;
+    const unit = document.getElementById("itemUnit").value.trim() || "";
+    const cat = document.getElementById("itemCat").value;
+    const tier = +document.getElementById("itemTier").value || 2;
+    const warn = +document.getElementById("itemWarn").value || 0;
+    
+    if(!nm){ alert("品名を入力してください"); return; }
+    
+    const newItem = {ic, nm, nt:"", qty, unit, pri:"low", tier, warn};
+    if(!customItems[cat]) customItems[cat] = [];
+    customItems[cat].push(newItem);
+    saveCustomItems();
+    closeAddItemModal();
+    render();
+    alert("🎉 " + nm + " を台所ダンジョンに追加しました！");
+  }
+  window.submitNewItem = submitNewItem;
+  
   function keyOf(cat,i){ return cat+"::"+i; }
   function getQty(cat,i,mob){
     const k = keyOf(cat,i);
@@ -256,7 +363,8 @@
     CATS.forEach(cat=>{
       const t = document.createElement("div");
       t.className = "tab" + (cat===current ? " active" : "");
-      t.innerHTML = `${cat}<span class="n">${DATA[cat].length}</span>`;
+      const count = (DATA[cat].length) + (customItems[cat]?.length || 0);
+      t.innerHTML = `${cat}<span class="n">${count}</span>`;
       t.onclick = ()=>{ current = cat; render(); };
       tabsEl.appendChild(t);
     });
@@ -271,7 +379,8 @@
   function countBuyList(){
     let n = 0;
     CATS.forEach(cat=>{
-      DATA[cat].forEach((mob,i)=>{
+      const full = [...DATA[cat], ...(customItems[cat]||[])];
+      full.forEach((mob,i)=>{
         if(getQty(cat,i,mob) <= warnOf(mob)) n++;
       });
     });
@@ -285,6 +394,11 @@
 
   function renderRoster(){
     roster.innerHTML = "";
+    // currentカテゴリの品目リストを作成（標準 + カスタム）
+    const baseList = DATA[current] || [];
+    const customList = customItems[current] || [];
+    currentList = [...baseList, ...customList];
+    
     if(current === BUY_TAB){
       statusWrap.style.display = "none";
       footNote.style.display = "none";
@@ -330,8 +444,7 @@
 
     statusWrap.style.display = "flex";
     footNote.style.display = "block";
-    const list = DATA[current];
-    const indexed = list.map((mob,i)=>({mob,i}));
+    const indexed = currentList.map((mob,i)=>({mob,i}));
     indexed.sort((a,b)=>{
       const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
       if(ta !== tb) return ta - tb;
@@ -413,6 +526,8 @@
       current===BUY_TAB ? "在庫が薄いものを自動で炙り出す、警戒リスト" : `${current}ダンジョン ── Kitchen Quest`;
   }
 
+  document.getElementById("btnAddItem").addEventListener("click", openAddItemModal);
+  
   render();
 </script>
 </body>
