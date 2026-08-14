@@ -110,7 +110,7 @@
     margin-top:5px;overflow:hidden;}
   .gauge-fill{height:100%;background:var(--sys);transition:width .25s;}
   .gauge-fill.low{background:var(--danger);}
-  .stock-slider{-webkit-appearance:none;appearance:none;display:block;width:100%;height:6px;border-radius:3px;
+  .stock-slider{-webkit-appearance:none;appearance:none;display:block;width:100%;height:4px;border-radius:2px;
     background:linear-gradient(90deg,var(--sys-deep) 0%,var(--sys) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));
     border:1px solid var(--line);margin-top:8px;cursor:pointer;touch-action:none;
     box-shadow:0 0 6px rgba(56,138,221,0.3);}
@@ -272,7 +272,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.4</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.5</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -326,77 +326,79 @@
   // pri: high / mid / low
   const DATA = {
     "冷蔵庫": [
-      {ic:"🍜", nm:"豚みそ（鶴翔高校作）", nt:"", qty:4, unit:"食分", pri:"mid", tier:9, warn:0},
-      {ic:"🍳", nm:"卵", nt:"", qty:12, unit:"個", pri:"low", tier:1, warn:4},
-      {ic:"🥛", nm:"豆乳", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:0},
-      {ic:"🍺", nm:"ビール（350mL）", nt:"", qty:5, unit:"本", pri:"low", tier:9, warn:0},
-      {ic:"⚡", nm:"栄養ドリンク", nt:"", qty:3, unit:"本", pri:"low", tier:9, warn:0},
-      {ic:"🥢", nm:"めんつゆ「唐船峡」", nt:"", qty:400, unit:"ml", pri:"low", step:100, tier:2, warn:100},
-      {ic:"🍝", nm:"スパ（乾麺）", nt:"", qty:8, unit:"束", pri:"low"},
-      {ic:"🧀", nm:"とろけるチーズ", nt:"", qty:9, unit:"枚", pri:"low", tier:1},
-      {ic:"🫘", nm:"納豆", nt:"", qty:4, unit:"パック", pri:"mid", tier:1},
-      {ic:"🍥", nm:"焼きそば麺", nt:"", qty:1, unit:"人前", pri:"mid", warn:0},
-      {ic:"🛸", nm:"UFO生麺", nt:"", qty:1, unit:"人前", pri:"mid", tier:9, warn:0},
-      {ic:"🥬", nm:"千切りキャベツ", nt:"", qty:1, unit:"食", pri:"high", warn:0},
-      {ic:"🍌", nm:"バナナ", nt:"", qty:5, unit:"本", pri:"high", tier:1},
-      {ic:"🥤", nm:"コーラ（500mL）", nt:"", qty:1, unit:"本", pri:"low", tier:9, warn:0},
-      {ic:"🍮", nm:"コーヒーゼリー", nt:"", qty:1, unit:"個", pri:"low", tier:9, warn:0},
-      {ic:"🥬", nm:"キャベツ", nt:"", qty:4, unit:"人前", pri:"high", tier:1},
-      {ic:"🧅", nm:"玉ねぎ", nt:"", qty:6, unit:"個", pri:"low", tier:1},
-      {ic:"🥕", nm:"人参", nt:"", qty:3, unit:"本", pri:"mid", tier:1},
-      {ic:"🍞", nm:"食パン", nt:"", qty:3, unit:"枚", pri:"high", tier:2},
-      {ic:"🥛", nm:"ヨーグルト", nt:"", qty:80, unit:"%", pri:"low", tier:1, warn:20},
-      {ic:"🥝", nm:"キウイ", nt:"", qty:5, unit:"日分", pri:"low", tier:1},
-      {ic:"🍎", nm:"りんご", nt:"", qty:4, unit:"日分", pri:"low", tier:1},
-      {ic:"🍢", nm:"うなぎ肝串", nt:"", qty:1, unit:"本", pri:"high", tier:9, warn:0},
-      {ic:"🥫", nm:"マヨネーズ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🥫", nm:"ブルドッグ中濃", nt:"", qty:130, unit:"%", pri:"low", tier:1, warn:20},
-      {ic:"🥫", nm:"ケチャップ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🧄", nm:"チューブにんにく", nt:"", qty:10, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🥫", nm:"醤油", nt:"", qty:120, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🥤", nm:"炭酸水", nt:"", qty:1, unit:"本", pri:"low", tier:9, warn:0},
-      {ic:"🧊", nm:"豆腐", nt:"", qty:1, unit:"丁", pri:"low", tier:2, warn:0},
+      {ic:"🍜", nm:"豚みそ（鶴翔高校作）", nt:"", qty:4, unit:"食分", pri:"mid", tier:9, warn:0, max:8},
+      {ic:"🍳", nm:"卵", nt:"", qty:12, unit:"個", pri:"low", tier:1, warn:4, max:20},
+      {ic:"🥛", nm:"豆乳", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:0, max:100},
+      {ic:"🍺", nm:"ビール（350mL）", nt:"", qty:5, unit:"本", pri:"low", tier:9, warn:0, max:5},
+      {ic:"⚡", nm:"栄養ドリンク", nt:"", qty:3, unit:"本", pri:"low", tier:9, warn:0, max:3},
+      {ic:"🥢", nm:"めんつゆ「唐船峡」", nt:"", qty:400, unit:"ml", pri:"low", step:100, tier:2, warn:100, max:500},
+      {ic:"🍝", nm:"パスタ", nt:"", qty:8, unit:"束", pri:"low", max:7},
+      {ic:"🧀", nm:"とろけるチーズ", nt:"", qty:9, unit:"枚", pri:"low", tier:1, max:10},
+      {ic:"🫘", nm:"納豆", nt:"", qty:4, unit:"パック", pri:"mid", tier:1, max:3},
+      {ic:"🍥", nm:"焼きそば麺", nt:"", qty:1, unit:"人前", pri:"mid", warn:0, max:1},
+      {ic:"🛸", nm:"UFO生麺", nt:"", qty:1, unit:"人前", pri:"mid", tier:9, warn:0, max:1},
+      {ic:"🥬", nm:"千切りキャベツ", nt:"", qty:1, unit:"食", pri:"high", warn:0, max:1},
+      {ic:"🍌", nm:"バナナ", nt:"", qty:5, unit:"本", pri:"high", tier:1, max:6},
+      {ic:"🥤", nm:"コーラ（500mL）", nt:"", qty:1, unit:"本", pri:"low", tier:9, warn:0, max:1},
+      {ic:"🍮", nm:"コーヒーゼリー", nt:"", qty:1, unit:"個", pri:"low", tier:9, warn:0, max:1},
+      {ic:"🥬", nm:"キャベツ", nt:"", qty:4, unit:"人前", pri:"high", tier:1, max:3},
+      {ic:"🧅", nm:"玉ねぎ", nt:"", qty:6, unit:"個", pri:"low", tier:1, max:3},
+      {ic:"🥕", nm:"人参", nt:"", qty:3, unit:"本", pri:"mid", tier:1, max:3},
+      {ic:"🍞", nm:"食パン", nt:"", qty:3, unit:"枚", pri:"high", tier:2, max:3},
+      {ic:"🥛", nm:"ヨーグルト", nt:"", qty:80, unit:"%", pri:"low", tier:1, warn:20, max:100},
+      {ic:"🥝", nm:"キウイ", nt:"", qty:5, unit:"日分", pri:"low", tier:1, max:5},
+      {ic:"🍎", nm:"りんご", nt:"", qty:4, unit:"日分", pri:"low", tier:1, max:8},
+      {ic:"🍢", nm:"うなぎ肝串", nt:"", qty:1, unit:"本", pri:"high", tier:9, warn:0, max:1},
+      {ic:"🥫", nm:"マヨネーズ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🥫", nm:"ブルドッグ中濃", nt:"", qty:130, unit:"%", pri:"low", tier:1, warn:20, max:100},
+      {ic:"🥫", nm:"ケチャップ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🧄", nm:"チューブにんにく", nt:"", qty:10, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🥫", nm:"醤油", nt:"", qty:120, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🥤", nm:"炭酸水", nt:"", qty:1, unit:"本", pri:"low", tier:9, warn:0, max:1},
+      {ic:"🧊", nm:"豆腐", nt:"", qty:1, unit:"丁", pri:"low", tier:2, warn:0, max:1},
+      {ic:"🥣", nm:"だし（粉末）", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10, max:100},
     ],
     "冷凍庫": [
-      {ic:"🍝", nm:"ミートソース（120g）", nt:"", qty:1, unit:"人前", pri:"high", tier:2},
-      {ic:"🥩", nm:"A5すき焼き肉", nt:"", qty:320, unit:"g", pri:"mid", tier:9, warn:0},
-      {ic:"🐷", nm:"豚ひき肉（炒め済み）", nt:"", qty:1, unit:"袋", pri:"mid", tier:9, warn:0},
-      {ic:"🐷", nm:"豚小間切れ", nt:"生姜焼き・他人丼", qty:1, unit:"人前", pri:"mid"},
-      {ic:"🥦", nm:"ブロッコリー", nt:"彩りの控え選手", qty:200, unit:"g", pri:"low"},
-      {ic:"🍚", nm:"ごはん（200g）", nt:"", qty:7, unit:"個", pri:"low", tier:1},
-      {ic:"🌿", nm:"小葱", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🍢", nm:"揚げ（みそ汁）", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"☕", nm:"コーヒー粉", nt:"", qty:300, unit:"g", pri:"low", tier:1, warn:200},
-      {ic:"🍔", nm:"ジョイフルハンバーグ", nt:"", qty:1, unit:"個", pri:"low", tier:9, warn:0},
-      {ic:"🍲", nm:"味噌", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🐷", nm:"豚ひき肉（生）", nt:"", qty:200, unit:"g", pri:"low", tier:9, warn:0},
+      {ic:"🍝", nm:"ミートソース（120g）", nt:"", qty:1, unit:"人前", pri:"high", tier:2, max:5},
+      {ic:"🥩", nm:"A5すき焼き肉", nt:"", qty:320, unit:"g", pri:"mid", tier:9, warn:0, max:320},
+      {ic:"🐷", nm:"豚ひき肉（炒め済み）", nt:"", qty:1, unit:"袋", pri:"mid", tier:9, warn:0, max:1},
+      {ic:"🐷", nm:"豚小間切れ", nt:"生姜焼き・他人丼", qty:1, unit:"人前", pri:"mid", max:4},
+      {ic:"🥦", nm:"ブロッコリー", nt:"彩りの控え選手", qty:200, unit:"g", pri:"low", max:200},
+      {ic:"🍚", nm:"ごはん（200g）", nt:"", qty:7, unit:"個", pri:"low", tier:1, max:10},
+      {ic:"🌿", nm:"小葱", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🍢", nm:"揚げ（みそ汁）", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"☕", nm:"コーヒー粉", nt:"", qty:300, unit:"g", pri:"low", tier:1, warn:200, max:400},
+      {ic:"🍔", nm:"ジョイフルハンバーグ", nt:"", qty:1, unit:"個", pri:"low", tier:9, warn:0, max:1},
+      {ic:"🍲", nm:"味噌", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🐷", nm:"豚ひき肉（生）", nt:"", qty:200, unit:"g", pri:"low", tier:9, warn:0, max:200},
     ],
     "パントリー": [
-      {ic:"🍜", nm:"揖保乃糸", nt:"", qty:1, unit:"束", pri:"high", tier:9, warn:0},
-      {ic:"🥔", nm:"ポテチ のりしお", nt:"", qty:1, unit:"袋", pri:"low", tier:2, warn:0},
-      {ic:"🌶️", nm:"カラムーチョ（小）", nt:"つまみ", qty:2, unit:"袋", pri:"low", tier:9, warn:0},
-      {ic:"🐟", nm:"シーチキン（ツナ缶）", nt:"", qty:1, unit:"缶", pri:"low", tier:9, warn:0},
-      {ic:"🍚", nm:"ごはん（レトルト180g）", nt:"", qty:8, unit:"食", pri:"low"},
-      {ic:"🍛", nm:"レトルトカレー", nt:"二分で一膳", qty:1, unit:"人前", pri:"low", warn:0},
-      {ic:"🥘", nm:"レトルトミート具", nt:"", qty:2, unit:"個", pri:"low", tier:9, warn:0},
-      {ic:"🍚", nm:"ビリヤニ（炊き込みの素）", nt:"", qty:1, unit:"袋", pri:"mid", tier:9, warn:0},
-      {ic:"🌾", nm:"雑穀米", nt:"", qty:10, unit:"合分", pri:"low", tier:2, warn:4},
-      {ic:"🍤", nm:"えびせん（かっぱえびせん）", nt:"", qty:0, unit:"袋", pri:"low", tier:9, warn:0},
-      {ic:"🍅", nm:"トマト缶", nt:"", qty:1, unit:"缶", pri:"low", warn:0},
-      {ic:"🐟", nm:"かつお節", nt:"", qty:5, unit:"パック", pri:"low", tier:2},
-      {ic:"🍩", nm:"チョコドーナツ", nt:"8/12入庫", qty:8, unit:"個", pri:"low", tier:9, warn:0},
-      {ic:"🍯", nm:"はちみつ", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🧻", nm:"ドリップペーパー", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🧻", nm:"キッチンペーパー", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🥫", nm:"シナモン", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🥫", nm:"味の素", nt:"", qty:60, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🌿", nm:"わかめ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10},
-      {ic:"🥫", nm:"コンソメ", nt:"", qty:5, unit:"本", pri:"low", tier:1, warn:1},
-      {ic:"🫒", nm:"オリーブオイル", nt:"", qty:190, unit:"%", pri:"low", tier:1},
-      {ic:"🐟", nm:"鯖缶", nt:"※テーブルの脚を支える什器", qty:1, unit:"缶", pri:"low", tier:9, warn:0},
+      {ic:"🍜", nm:"揖保乃糸", nt:"", qty:1, unit:"束", pri:"high", tier:9, warn:0, max:1},
+      {ic:"🥔", nm:"ポテチ のりしお", nt:"", qty:1, unit:"袋", pri:"low", tier:2, warn:0, max:1},
+      {ic:"🌶️", nm:"カラムーチョ（小）", nt:"つまみ", qty:2, unit:"袋", pri:"low", tier:9, warn:0, max:2},
+      {ic:"🐟", nm:"シーチキン（ツナ缶）", nt:"", qty:1, unit:"缶", pri:"low", tier:9, warn:0, max:1},
+      {ic:"🍚", nm:"ごはん（レトルト180g）", nt:"", qty:8, unit:"食", pri:"low", max:8},
+      {ic:"🍛", nm:"レトルトカレー", nt:"二分で一膳", qty:1, unit:"人前", pri:"low", warn:0, max:8},
+      {ic:"🥘", nm:"レトルトミート具", nt:"", qty:2, unit:"個", pri:"low", tier:9, warn:0, max:8},
+      {ic:"🍚", nm:"ビリヤニ（炊き込みの素）", nt:"", qty:1, unit:"袋", pri:"mid", tier:9, warn:0, max:1},
+      {ic:"🌾", nm:"雑穀米", nt:"", qty:10, unit:"合分", pri:"low", tier:2, warn:4, max:10},
+      {ic:"🍤", nm:"えびせん（かっぱえびせん）", nt:"", qty:0, unit:"袋", pri:"low", tier:9, warn:0, max:1},
+      {ic:"🍅", nm:"トマト缶", nt:"", qty:1, unit:"缶", pri:"low", warn:0, max:1},
+      {ic:"🐟", nm:"かつお節", nt:"", qty:5, unit:"パック", pri:"low", tier:2, max:5},
+      {ic:"🍩", nm:"チョコドーナツ", nt:"8/12入庫", qty:8, unit:"個", pri:"low", tier:9, warn:0, max:8},
+      {ic:"🍯", nm:"はちみつ", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🧻", nm:"ドリップペーパー", nt:"", qty:30, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🧻", nm:"キッチンペーパー", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🥫", nm:"シナモン", nt:"", qty:100, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🥫", nm:"味の素", nt:"", qty:60, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🌿", nm:"わかめ", nt:"", qty:50, unit:"%", pri:"low", tier:1, warn:10, max:100},
+      {ic:"🥫", nm:"コンソメ", nt:"", qty:5, unit:"本", pri:"low", tier:1, warn:1, max:5},
+      {ic:"🫒", nm:"オリーブオイル", nt:"", qty:190, unit:"%", pri:"low", tier:1, max:100},
+      {ic:"🐟", nm:"鯖缶", nt:"※テーブルの脚を支える什器", qty:1, unit:"缶", pri:"low", tier:9, warn:0, max:1},
+      {ic:"💧", nm:"水（500ml）", nt:"", qty:15, unit:"本", pri:"low", tier:1, warn:5, max:40},
     ],
     "その他": [
-      {ic:"🫑", nm:"パプリカ", nt:"", qty:3, unit:"個", pri:"high", tier:9, warn:0},
+      {ic:"🫑", nm:"パプリカ", nt:"", qty:3, unit:"個", pri:"high", tier:9, warn:0, max:3},
     ],
   };
 
@@ -571,7 +573,7 @@
     if(editTarget){
       // 既存の追加品目を更新
       const src = customItems[editTarget.cat][editTarget.idx];
-      const updated = {ic: src.ic || "📦", nm, nt:"", qty, unit, pri:"low", tier, warn};
+      const updated = {ic: src.ic || "📦", nm, nt:"", qty, unit, pri:"low", tier, warn, max: (typeof src.max==="number"&&src.max>0)?src.max:(unit==="%"?100:10)};
       if(editTarget.cat === cat){
         customItems[cat][editTarget.idx] = updated;
       } else {
@@ -589,7 +591,7 @@
       alert("✅ " + nm + " を更新しました");
     } else {
       // 新規登録
-      const newItem = {ic:"📦", nm, nt:"", qty, unit, pri:"low", tier, warn};
+      const newItem = {ic:"📦", nm, nt:"", qty, unit, pri:"low", tier, warn, max: unit==="%"?100:10};
       if(!customItems[cat]) customItems[cat] = [];
       customItems[cat].push(newItem);
       saveCustomItems();
@@ -766,16 +768,18 @@
       el.dataset.i = i;
       el.dataset.cat = cat;
       const catLabel = showCatLabel ? `<div class="catloc">${CAT_ICON[cat]||""} ${catAbbr(cat)}</div>` : "";
+      const isPct = mob.unit==="%";
+      const mx = (typeof mob.max==="number" && mob.max>0) ? mob.max : (isPct ? 100 : 10);
+      const stp = isPct ? 5 : 1;
+      const pct = Math.min(100, q/mx*100);
       el.innerHTML = `
         <div class="meta">
           <div class="nm"><span class="tierbadge ${rankOf(mob).cls}" title="${rankOf(mob).jp}">${rankOf(mob).mark}</span>${mob.nm}</div>
           ${catLabel}
-          ${mob.unit==="%" ? (()=>{const mx=Math.max(100,q);return `<input type="range" class="stock-slider${sliderCls}" min="0" max="${mx}" step="5" value="${q}" style="--p:${(q/mx*100)}%">`})() : ""}
+          <input type="range" class="stock-slider${sliderCls}" min="0" max="${mx}" step="${stp}" value="${q}" style="--p:${pct}%">
         </div>
         <div class="step">
-          <div class="btn minus" data-act="-1">−</div>
-          <div class="qty"><span class="q">${q}</span><small>${mob.unit||""}</small></div>
-          <div class="btn plus" data-act="1">＋</div>
+          <div class="qty"><span class="q">${q}</span><small>${isPct?"%":("/"+mx+" "+(mob.unit||""))}</small></div>
         </div>
         <div class="slain">EMPTY</div>`;
       roster.appendChild(el);
@@ -815,20 +819,6 @@
     const merged = [...(DATA[cat]||[]), ...((customItems[cat]||[]))];
     return {cat, i, mob: merged[i]};
   }
-
-  roster.addEventListener("click", e=>{
-    const btn = e.target.closest(".btn");
-    if(!btn) return;
-    const mobEl = btn.closest(".mob");
-    const {cat,i,mob} = entryFromEl(mobEl);
-    if(!mob) return;
-    const step = mob.step || 1;
-    const dir = +btn.dataset.act; // -1 or 1
-    let v = getQty(cat,i,mob) + (dir * step);
-    if(v<0) v=0;
-    setQty(cat,i,v);
-    render(); // 数値・バッジ・買い出し候補・危険域を丸ごと再計算
-  });
 
   // ---- %スライダー：ドラッグ中は表示だけ更新、指を離したら保存＆再描画 ----
   roster.addEventListener("input", e=>{
