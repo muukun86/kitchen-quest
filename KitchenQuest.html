@@ -288,7 +288,7 @@
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.0</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.1</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -771,7 +771,6 @@
     
     if(current === BUY_TAB){
       statusWrap.style.display = "none";
-      footNote.style.display = "none";
       const items = [];
       CATS.forEach(cat=>{
         DATA[cat].forEach((mob,i)=>{
@@ -813,9 +812,6 @@
     }
 
     statusWrap.style.display = "flex";
-    footNote.style.display = "block";
-    statusWrap.style.display = "flex";
-    footNote.style.display = "block";
 
     // 表示する {cat, mob, i} のリストを、モードに応じて用意
     let entries;
