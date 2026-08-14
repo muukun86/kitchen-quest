@@ -229,9 +229,9 @@
 
   <div class="modebar">
     <div class="modetoggle" id="modeToggle">
-      <div class="modeopt" data-mode="all">▤ ALL</div>
+      <div class="modeopt active" data-mode="all">▤ ALL</div>
       <div class="modeopt" data-mode="rank">⬢ RANK</div>
-      <div class="modeopt active" data-mode="place">⊞ AREA</div>
+      <div class="modeopt" data-mode="place">⊞ AREA</div>
     </div>
   </div>
 
@@ -257,7 +257,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.1</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.2</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -414,7 +414,7 @@
   // 場所ごとの絵文字（ランクモードで各行に現在地を表示）
   const CAT_ICON = {"冷蔵庫":"❄", "冷凍庫":"🧊", "パントリー":"📦", "その他":"🔖"};
   // 表示軸モード: "place"(場所) / "rank"(ランク)
-  let viewMode = "place";
+  let viewMode = "all";
   // ランクモードのタブ（RANKSのキー順＝S,A,…,G）。買い出しは共通で末尾。
   const RANK_TABS = Object.keys(RANKS).map(Number).sort((a,b)=>a-b); // [1,2,9]
   let currentRank = RANK_TABS[0]; // ランクモードで選択中のランク番号
@@ -429,7 +429,7 @@
     if(q <= Math.max(1, w/4)) return "low";   // 危険＝赤（warnの1/4以下）
     return "warn";                             // 警戒＝オレンジ
   }
-  let current = CATS[0];
+  let current = "__ALL__";
 
   const STORE_KEY = "kitchenQuest_v2_state";
   function loadState(){
