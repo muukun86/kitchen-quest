@@ -31,25 +31,21 @@
   body>*{position:relative;z-index:1;}
 
   /* ---- ヘッダー：システムウィンドウ ---- */
-  .crest{display:flex;align-items:center;gap:11px;padding:14px 16px;position:relative;
+  .crest{display:flex;align-items:center;gap:12px;padding:8px 16px;position:relative;
     border:1.5px solid var(--line);border-radius:4px;
     background:linear-gradient(180deg,var(--panel2),var(--panel));
     box-shadow:0 0 24px rgba(56,138,221,0.28), inset 0 0 30px rgba(56,138,221,0.06);}
-  .crest::before,.crest::after{content:"";position:absolute;width:16px;height:16px;pointer-events:none;}
+  .crest::before,.crest::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none;}
   .crest::before{top:-1px;left:-1px;border-top:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px -1px 8px var(--sys-glow);}
   .crest::after{top:-1px;right:-1px;border-top:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px -1px 8px var(--sys-glow);}
-  .crest .corners::before,.crest .corners::after{content:"";position:absolute;width:16px;height:16px;pointer-events:none;}
+  .crest .corners::before,.crest .corners::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none;}
   .crest .corners::before{bottom:-1px;left:-1px;border-bottom:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px 1px 8px var(--sys-glow);}
   .crest .corners::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px 1px 8px var(--sys-glow);}
-  .sigil{width:42px;height:42px;flex:none;border-radius:4px;border:1.5px solid var(--sys);
-    background:rgba(20,44,78,0.5);display:grid;place-items:center;color:var(--sys);
-    font-weight:900;font-size:22px;box-shadow:0 0 14px var(--sys-glow),inset 0 0 10px rgba(56,138,221,0.2);
-    text-shadow:0 0 8px var(--sys-glow);}
-  .crest h1{font-size:17px;font-weight:800;letter-spacing:.14em;text-shadow:0 0 10px var(--sys-glow);}
-  .crest .loc{font-size:11px;color:var(--sub);margin-top:3px;letter-spacing:.22em;}
-  .crest .tag{margin-left:auto;font-size:10px;color:var(--sys);border:1px solid var(--line);
-    border-radius:3px;padding:3px 9px;letter-spacing:.1em;background:rgba(20,44,78,0.4);
-    text-shadow:0 0 6px var(--sys-glow);}
+  .emblem{width:44px;height:44px;flex:none;filter:drop-shadow(0 0 6px var(--sys-glow));}
+  .emblem-txt{fill:var(--sys);font-size:10.5px;font-weight:800;letter-spacing:.12em;font-family:"Segoe UI",system-ui,sans-serif;}
+  .emblem-star{fill:var(--sys);font-size:8px;}
+  .emblem-sword{fill:var(--sys);font-size:20px;}
+  .crest h1{font-size:18px;font-weight:800;letter-spacing:.16em;text-shadow:0 0 10px var(--sys-glow);}
 
   /* ---- タブ ---- */
   .tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto;padding-bottom:2px;}
@@ -112,20 +108,20 @@
     margin-top:5px;overflow:hidden;}
   .gauge-fill{height:100%;background:var(--sys);transition:width .25s;}
   .gauge-fill.low{background:var(--danger);}
-  .stock-slider{-webkit-appearance:none;appearance:none;display:block;width:100%;height:14px;border-radius:7px;
+  .stock-slider{-webkit-appearance:none;appearance:none;display:block;width:100%;height:6px;border-radius:3px;
     background:linear-gradient(90deg,var(--sys-deep) 0%,var(--sys) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));
-    border:1px solid var(--line);margin-top:7px;cursor:pointer;touch-action:none;
-    box-shadow:0 0 8px rgba(56,138,221,0.25);}
-  .stock-slider.warn{background:linear-gradient(90deg,var(--warn-deep) 0%,var(--warn) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));box-shadow:0 0 8px rgba(255,169,77,0.3);}
-  .stock-slider.low{background:linear-gradient(90deg,var(--danger-deep) 0%,var(--danger) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));box-shadow:0 0 8px rgba(255,106,90,0.3);}
-  .stock-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
-    background:var(--ink);border:2px solid var(--sys);box-shadow:0 0 10px var(--sys-glow);}
-  .stock-slider.warn::-webkit-slider-thumb{border-color:var(--warn);box-shadow:0 0 10px var(--warn-glow);}
-  .stock-slider.low::-webkit-slider-thumb{border-color:var(--danger);box-shadow:0 0 10px var(--danger-glow);}
-  .stock-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--ink);
-    border:2px solid var(--sys);box-shadow:0 0 10px var(--sys-glow);}
-  .stock-slider.warn::-moz-range-thumb{border-color:var(--warn);box-shadow:0 0 10px var(--warn-glow);}
-  .stock-slider.low::-moz-range-thumb{border-color:var(--danger);box-shadow:0 0 10px var(--danger-glow);}
+    border:1px solid var(--line);margin-top:8px;cursor:pointer;touch-action:none;
+    box-shadow:0 0 6px rgba(56,138,221,0.3);}
+  .stock-slider.warn{background:linear-gradient(90deg,var(--warn-deep) 0%,var(--warn) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));box-shadow:0 0 6px rgba(255,169,77,0.35);}
+  .stock-slider.low{background:linear-gradient(90deg,var(--danger-deep) 0%,var(--danger) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));box-shadow:0 0 6px rgba(255,106,90,0.35);}
+  .stock-slider::-webkit-slider-thumb{-webkit-appearance:none;width:5px;height:20px;border-radius:2px;
+    background:var(--ink);border:none;box-shadow:0 0 8px var(--sys-glow),0 0 2px var(--sys);}
+  .stock-slider.warn::-webkit-slider-thumb{background:#fff2e0;box-shadow:0 0 8px var(--warn-glow),0 0 2px var(--warn);}
+  .stock-slider.low::-webkit-slider-thumb{background:#ffe6e2;box-shadow:0 0 8px var(--danger-glow),0 0 2px var(--danger);}
+  .stock-slider::-moz-range-thumb{width:5px;height:20px;border-radius:2px;background:var(--ink);
+    border:none;box-shadow:0 0 8px var(--sys-glow),0 0 2px var(--sys);}
+  .stock-slider.warn::-moz-range-thumb{background:#fff2e0;box-shadow:0 0 8px var(--warn-glow),0 0 2px var(--warn);}
+  .stock-slider.low::-moz-range-thumb{background:#ffe6e2;box-shadow:0 0 8px var(--danger-glow),0 0 2px var(--danger);}
 
   /* ---- 討伐済み ---- */
   .mob.dead{opacity:.4;filter:grayscale(.7);border-left-color:#3a5578;}
@@ -157,6 +153,8 @@
 
   /* ---- フッター ---- */
   .foot{margin-top:20px;text-align:center;font-size:10.5px;color:var(--sub);line-height:1.7;letter-spacing:.05em;}
+  .copyright{margin-top:8px;text-align:center;font-size:9.5px;color:#3a5a80;letter-spacing:.14em;}
+  .copyright .ver{color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .foot b{color:var(--sys);font-weight:700;}
   .note{margin-top:14px;border:1px solid var(--line);border-radius:3px;padding:11px 13px;font-size:11px;
     color:var(--sub);line-height:1.75;background:rgba(20,44,78,0.2);position:relative;}
@@ -191,7 +189,7 @@
   .modebar{display:flex;align-items:center;gap:10px;margin:14px 0 2px;}
   .modelabel{font-size:11px;color:var(--sub);letter-spacing:.18em;}
   .modetoggle{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;}
-  .modeopt{padding:6px 14px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s;background:transparent;}
+  .modeopt{padding:6px 11px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s;background:transparent;white-space:nowrap;}
   .modeopt+.modeopt{border-left:1px solid var(--line);}
   .modeopt.active{color:var(--sys);background:rgba(56,138,221,0.28);box-shadow:inset 0 0 12px rgba(56,138,221,0.15);text-shadow:0 0 6px var(--sys-glow);}
   /* タブ内のランクマーク（S/A/G） */
@@ -208,12 +206,22 @@
 
   <div class="crest">
     <span class="corners"></span>
-    <div class="sigil">⚔</div>
-    <div>
-      <h1>KITCHEN QUEST</h1>
-      <div class="loc">DUNGEON —— 台所迷宮</div>
+    <div class="emblem" aria-label="Kitchen Quest">
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <defs>
+          <path id="arcTop" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0" />
+          <path id="arcBot" d="M 50,50 m -37,0 a 37,37 0 1,0 74,0" />
+        </defs>
+        <circle cx="50" cy="50" r="47" fill="none" stroke="#7fc8ff" stroke-width="1.4" opacity="0.9"/>
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#7fc8ff" stroke-width="1" opacity="0.55"/>
+        <text class="emblem-txt"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">KITCHEN</textPath></text>
+        <text class="emblem-txt"><textPath href="#arcBot" startOffset="50%" text-anchor="middle">QUEST</textPath></text>
+        <text x="19" y="53" class="emblem-star">★</text>
+        <text x="75" y="53" class="emblem-star">★</text>
+        <text x="50" y="59" text-anchor="middle" class="emblem-sword">⚔</text>
+      </svg>
     </div>
-    <div class="tag">v0.7</div>
+    <h1>KITCHEN QUEST</h1>
   </div>
 
   <div class="modebar">
@@ -221,6 +229,7 @@
     <div class="modetoggle" id="modeToggle">
       <div class="modeopt active" data-mode="place">⊞ 場所</div>
       <div class="modeopt" data-mode="rank">⬢ ランク</div>
+      <div class="modeopt" data-mode="all">▤ ALL</div>
     </div>
   </div>
 
@@ -245,6 +254,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v0.8</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -493,7 +503,7 @@
         t.onclick = ()=>{ current = cat; render(); };
         tabsEl.appendChild(t);
       });
-    } else {
+    } else if(viewMode === "rank"){
       // ランクモード：S / A / … / G
       RANK_TABS.forEach(rk=>{
         const r = RANKS[rk];
@@ -504,6 +514,13 @@
         t.onclick = ()=>{ current = "__RANK__"; currentRank = rk; render(); };
         tabsEl.appendChild(t);
       });
+    } else {
+      // ALLモード：全品目まとめて1タブ
+      const t = document.createElement("div");
+      t.className = "tab" + (current!==BUY_TAB ? " active" : "");
+      t.innerHTML = `▤ ALL<span class="n">${allEntries().length}</span>`;
+      t.onclick = ()=>{ current = "__ALL__"; render(); };
+      tabsEl.appendChild(t);
     }
     const buyCount = countBuyList();
     const bt = document.createElement("div");
@@ -597,6 +614,17 @@
         if(catOrder[a.cat] !== catOrder[b.cat]) return catOrder[a.cat] - catOrder[b.cat];
         return a.i - b.i;
       });
+    } else if(viewMode === "all"){
+      // ALLモード：全品目を場所順→tier順で
+      entries = allEntries();
+      showCatLabel = true;
+      const catOrder = {}; CATS.forEach((c,idx)=> catOrder[c]=idx);
+      entries.sort((a,b)=>{
+        if(catOrder[a.cat] !== catOrder[b.cat]) return catOrder[a.cat] - catOrder[b.cat];
+        const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
+        if(ta !== tb) return ta - tb;
+        return a.i - b.i;
+      });
     } else {
       // 場所モード：現在カテゴリの品目を tier順で
       entries = currentList.map((mob,i)=>({cat:current, mob, i}));
@@ -640,6 +668,8 @@
     if(viewMode === "rank"){
       list = allEntries().filter(e => (e.mob.tier || 2) === currentRank)
                          .map(e => ({mob:e.mob, cat:e.cat, i:e.i}));
+    } else if(viewMode === "all"){
+      list = allEntries().map(e => ({mob:e.mob, cat:e.cat, i:e.i}));
     } else {
       list = currentList.map((mob,i)=>({mob, cat:current, i}));
     }
@@ -714,6 +744,8 @@
     } else if(viewMode==="rank"){
       const r = RANKS[currentRank] || RANK_FALLBACK;
       footLabel = `${r.mark} ${r.jp} ── 全ダンジョン横断`;
+    } else if(viewMode==="all"){
+      footLabel = `全品目 ── 台所のすべて`;
     } else {
       footLabel = `${current}ダンジョン ── Kitchen Quest`;
     }
@@ -735,7 +767,8 @@
     });
     // モード切替時、選択タブを各モードの先頭にリセット（買い出しは維持しない）
     if(viewMode === "place"){ current = CATS[0]; }
-    else { current = "__RANK__"; currentRank = RANK_TABS[0]; }
+    else if(viewMode === "rank"){ current = "__RANK__"; currentRank = RANK_TABS[0]; }
+    else { current = "__ALL__"; }
     render();
   });
 
