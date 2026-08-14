@@ -167,14 +167,28 @@
   .modal.show{display:grid;}
   .modal-content{position:relative;background:linear-gradient(180deg,rgba(12,26,48,0.96),rgba(6,14,28,0.96));
     border:1.5px solid var(--sys);border-radius:4px;padding:22px 20px;width:90%;max-width:420px;
+    max-height:88vh;overflow-y:auto;
     box-shadow:0 0 40px rgba(56,138,221,0.4),inset 0 0 40px rgba(56,138,221,0.06);}
   .modal-content::before,.modal-content::after{content:"";position:absolute;width:20px;height:20px;pointer-events:none;}
   .modal-content::before{top:-1px;left:-1px;border-top:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px -1px 10px var(--sys-glow);}
   .modal-content::after{top:-1px;right:-1px;border-top:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px -1px 10px var(--sys-glow);}
-  .modal-title{font-size:16px;font-weight:900;color:var(--sys);letter-spacing:.14em;margin-bottom:16px;text-align:center;
-    text-shadow:0 0 12px var(--sys-glow);border:1px solid var(--line);border-radius:3px;padding:8px;
+  .modal-title{font-size:16px;font-weight:900;color:var(--sys);letter-spacing:.14em;margin-bottom:16px;text-align:center;    text-shadow:0 0 12px var(--sys-glow);border:1px solid var(--line);border-radius:3px;padding:8px;
     background:rgba(20,44,78,0.35);}
   .modal-form{display:flex;flex-direction:column;gap:12px;}
+  .edit-list{max-height:34vh;overflow-y:auto;margin-bottom:14px;}
+  .edit-empty{text-align:center;color:var(--sub);font-size:11.5px;padding:18px 8px;line-height:1.7;}
+  .edit-formhead{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.1em;margin:6px 2px 8px;
+    padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .edit-row{display:flex;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px solid rgba(90,180,255,0.15);}
+  .edit-info{flex:1;min-width:0;display:flex;align-items:center;gap:6px;}
+  .edit-nm{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .edit-cat{font-size:9px;color:var(--sub);border:1px solid var(--line);border-radius:2px;padding:1px 5px;flex:none;}
+  .edit-acts{display:flex;gap:5px;flex:none;}
+  .edit-btn{width:30px;height:30px;border-radius:3px;border:1px solid var(--line);background:rgba(8,16,28,0.7);
+    font-size:14px;cursor:pointer;display:grid;place-items:center;}
+  .edit-btn.ed{color:var(--sys);border-color:rgba(127,200,255,0.4);}
+  .edit-btn.del{color:var(--danger);border-color:rgba(255,106,90,0.4);}
+  .edit-btn:active{transform:scale(.9);}
   .form-group{display:flex;flex-direction:column;gap:4px;}
   .form-group label{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.08em;}
   .form-group input,.form-group select{background:rgba(8,16,28,0.7);border:1px solid var(--line);border-radius:3px;padding:8px 10px;color:var(--ink);font-family:inherit;font-size:13px;}
@@ -258,16 +272,14 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.3</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.4</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
-      <div class="modal-title">❌ 未知の品目を検出</div>
+      <div class="modal-title">⚙ 品目エディット</div>
+      <div id="editList" class="edit-list"></div>
+      <div class="edit-formhead" id="formHead">＋ 新規登録</div>
       <div class="modal-form">
-        <div class="form-group">
-          <label>絵文字</label>
-          <input type="text" id="itemIcon" maxlength="2" placeholder="🐟" value="📦">
-        </div>
         <div class="form-group">
           <label>品名</label>
           <input type="text" id="itemName" placeholder="新しい品目">
@@ -283,14 +295,14 @@
         <div class="form-group">
           <label>カテゴリ</label>
           <select id="itemCat">
-            <option value="冷蔵庫">冷蔵庫</option>
-            <option value="冷凍庫">冷凍庫</option>
-            <option value="パントリー">パントリー</option>
-            <option value="その他">その他</option>
+            <option value="冷蔵庫">FRG ── 冷蔵庫</option>
+            <option value="冷凍庫">FRZ ── 冷凍庫</option>
+            <option value="パントリー">PNT ── パントリー</option>
+            <option value="その他">ETC ── その他</option>
           </select>
         </div>
         <div class="form-group">
-          <label>ティア</label>
+          <label>ランク</label>
           <select id="itemTier">
             <option value="1">S ── 常駐（切らすと即困る）</option>
             <option value="2" selected>A ── 常連（よく使う）</option>
@@ -304,7 +316,7 @@
       </div>
       <div class="form-actions">
         <button class="btn-cancel" onclick="closeAddItemModal()">閉じる</button>
-        <button class="btn-ok" onclick="submitNewItem()">台所に追加</button>
+        <button class="btn-ok" id="submitBtn" onclick="submitNewItem()">台所に追加</button>
       </div>
     </div>
   </div>
@@ -461,28 +473,131 @@
     try{ localStorage.setItem("kitchenQuest_customItems", JSON.stringify(customItems)); }catch(e){}
   }
   
-  function openAddItemModal(){ document.getElementById("addItemModal").classList.add("show"); }
+  let editTarget = null; // {cat, idx} 編集中の追加品目。nullなら新規登録モード
+
+  function openAddItemModal(){
+    editTarget = null;
+    resetForm();
+    renderEditList();
+    document.getElementById("addItemModal").classList.add("show");
+  }
   function closeAddItemModal(){ document.getElementById("addItemModal").classList.remove("show"); }
   window.closeAddItemModal = closeAddItemModal;
-  
+
+  function resetForm(){
+    document.getElementById("itemName").value = "";
+    document.getElementById("itemQty").value = 1;
+    document.getElementById("itemUnit").value = "";
+    document.getElementById("itemCat").value = current in DATA ? current : "冷蔵庫";
+    document.getElementById("itemTier").value = 2;
+    document.getElementById("itemWarn").value = 0;
+    document.getElementById("formHead").textContent = "＋ 新規登録";
+    document.getElementById("submitBtn").textContent = "台所に追加";
+  }
+
+  // 追加品目の一覧を描画（編集・削除ボタン付き）
+  function renderEditList(){
+    const el = document.getElementById("editList");
+    el.innerHTML = "";
+    const rows = [];
+    Object.keys(customItems).forEach(cat=>{
+      (customItems[cat]||[]).forEach((mob,idx)=> rows.push({cat, mob, idx}));
+    });
+    if(rows.length === 0){
+      el.innerHTML = `<div class="edit-empty">登録済みの追加品目はまだありません。<br>下のフォームから新規登録できます。</div>`;
+      return;
+    }
+    const head = document.createElement("div");
+    head.className = "edit-formhead";
+    head.textContent = "登録済みの追加品目";
+    el.appendChild(head);
+    rows.forEach(({cat,mob,idx})=>{
+      const r = document.createElement("div");
+      r.className = "edit-row";
+      r.innerHTML = `
+        <div class="edit-info">
+          <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
+          <span class="edit-nm">${mob.nm}</span>
+          <span class="edit-cat">${catAbbr(cat)}</span>
+        </div>
+        <div class="edit-acts">
+          <button class="edit-btn ed" data-cat="${cat}" data-idx="${idx}">✎</button>
+          <button class="edit-btn del" data-cat="${cat}" data-idx="${idx}">🗑</button>
+        </div>`;
+      el.appendChild(r);
+    });
+  }
+
+  // 編集ボタン→フォームに読み込み / 削除ボタン→除去
+  document.getElementById("editList").addEventListener("click", e=>{
+    const btn = e.target.closest(".edit-btn");
+    if(!btn) return;
+    const cat = btn.dataset.cat, idx = +btn.dataset.idx;
+    const mob = (customItems[cat]||[])[idx];
+    if(!mob) return;
+    if(btn.classList.contains("del")){
+      if(confirm(`「${mob.nm}」を削除しますか？`)){
+        customItems[cat].splice(idx,1);
+        if(customItems[cat].length===0) delete customItems[cat];
+        saveCustomItems();
+        renderEditList();
+        render();
+      }
+    } else {
+      // 編集モードへ：フォームに値を読み込む
+      editTarget = {cat, idx};
+      document.getElementById("itemName").value = mob.nm || "";
+      document.getElementById("itemQty").value = (typeof mob.qty==="number") ? mob.qty : 1;
+      document.getElementById("itemUnit").value = mob.unit || "";
+      document.getElementById("itemCat").value = cat;
+      document.getElementById("itemTier").value = mob.tier || 2;
+      document.getElementById("itemWarn").value = mob.warn || 0;
+      document.getElementById("formHead").textContent = `✎ 編集中：${mob.nm}`;
+      document.getElementById("submitBtn").textContent = "更新する";
+      document.getElementById("addItemModal").scrollTop = 99999;
+    }
+  });
+
   function submitNewItem(){
-    const ic = document.getElementById("itemIcon").value.trim() || "📦";
     const nm = document.getElementById("itemName").value.trim();
-    const qty = +document.getElementById("itemQty").value || 1;
+    const qty = +document.getElementById("itemQty").value || 0;
     const unit = document.getElementById("itemUnit").value.trim() || "";
     const cat = document.getElementById("itemCat").value;
     const tier = +document.getElementById("itemTier").value || 2;
     const warn = +document.getElementById("itemWarn").value || 0;
-    
+
     if(!nm){ alert("品名を入力してください"); return; }
-    
-    const newItem = {ic, nm, nt:"", qty, unit, pri:"low", tier, warn};
-    if(!customItems[cat]) customItems[cat] = [];
-    customItems[cat].push(newItem);
-    saveCustomItems();
-    closeAddItemModal();
-    render();
-    alert("🎉 " + nm + " を台所に追加しました！");
+
+    if(editTarget){
+      // 既存の追加品目を更新
+      const src = customItems[editTarget.cat][editTarget.idx];
+      const updated = {ic: src.ic || "📦", nm, nt:"", qty, unit, pri:"low", tier, warn};
+      if(editTarget.cat === cat){
+        customItems[cat][editTarget.idx] = updated;
+      } else {
+        // カテゴリ変更：元から除去して新カテゴリへ
+        customItems[editTarget.cat].splice(editTarget.idx,1);
+        if(customItems[editTarget.cat].length===0) delete customItems[editTarget.cat];
+        if(!customItems[cat]) customItems[cat] = [];
+        customItems[cat].push(updated);
+      }
+      saveCustomItems();
+      editTarget = null;
+      resetForm();
+      renderEditList();
+      render();
+      alert("✅ " + nm + " を更新しました");
+    } else {
+      // 新規登録
+      const newItem = {ic:"📦", nm, nt:"", qty, unit, pri:"low", tier, warn};
+      if(!customItems[cat]) customItems[cat] = [];
+      customItems[cat].push(newItem);
+      saveCustomItems();
+      resetForm();
+      renderEditList();
+      render();
+      alert("🎉 " + nm + " を台所に追加しました！");
+    }
   }
   window.submitNewItem = submitNewItem;
   
