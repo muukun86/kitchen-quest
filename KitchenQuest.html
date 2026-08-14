@@ -276,7 +276,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.7</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.8</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -721,7 +721,7 @@
     const buyCount = countBuyList();
     const bt = document.createElement("div");
     bt.className = "tab buy" + (current===BUY_TAB ? " active" : "");
-    bt.innerHTML = `🛒 買い出し候補<span class="n">${buyCount}</span>`;
+    bt.innerHTML = `🛒 Restock<span class="n">${buyCount}</span>`;
     bt.onclick = ()=>{ current = BUY_TAB; render(); };
     tabsEl.appendChild(bt);
   }
@@ -760,7 +760,7 @@
         });
       });
       if(items.length===0){
-        roster.innerHTML = `<div class="empty">在庫は十分。<br><b>買い出し候補は、今のところなし。</b><br>各品の"警戒ライン"を下回ると、ここに浮かび上がります。</div>`;
+        roster.innerHTML = `<div class="empty">在庫は十分。<br><b>Restock対象は、今のところなし。</b><br>各品の"警戒ライン"を下回ると、ここに浮かび上がります。</div>`;
         return;
       }
       function tierOf(mob){ return mob.tier || 2; }
