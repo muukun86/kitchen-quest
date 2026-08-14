@@ -199,6 +199,11 @@
     font-size:14px;cursor:pointer;display:grid;place-items:center;}
   .edit-btn.ed{color:var(--sys);border-color:rgba(127,200,255,0.4);}
   .edit-btn.del{color:var(--danger);border-color:rgba(255,106,90,0.4);}
+  .edit-btn.restore{color:var(--hp);border-color:rgba(110,231,200,0.4);}
+  .edit-btn.purge{color:var(--sub);border-color:var(--line);}
+  .edit-formhead.archive{color:var(--warn);border-color:rgba(255,169,77,0.3);margin-top:14px;}
+  .edit-row.archived{opacity:.6;}
+  .edit-row.archived .edit-nm{text-decoration:line-through;}
   .edit-btn:active{transform:scale(.9);}
   .form-group{display:flex;flex-direction:column;gap:4px;}
   .form-group label{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.08em;}
@@ -277,7 +282,7 @@
 
   <div class="roster" id="roster"></div>
 
-  <button class="btn-add-item" id="btnAddItem">＋ 未知の品目を検出・登録</button>
+  <button class="btn-add-item" id="btnAddItem">⚙ EDIT MODE</button>
 
   <button class="manual-toggle" id="manualToggle" onclick="toggleManual()">MANUAL ▾</button>
   <div class="note" id="footNote" style="display:none;">
@@ -288,13 +293,13 @@
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.1</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.2</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
-      <div class="modal-title">⚙ 品目エディット</div>
+      <div class="modal-title">⚙ EDIT MODE</div>
       <div id="editList" class="edit-list"></div>
-      <div class="edit-formhead" id="formHead">＋ 新規登録</div>
+      <div class="edit-formhead" id="formHead">＋ NEW ITEM</div>
       <div class="modal-form">
         <div class="form-group">
           <label>品名</label>
@@ -355,8 +360,8 @@
         </div>
       </div>
       <div class="form-actions">
-        <button class="btn-cancel" onclick="closeAddItemModal()">閉じる</button>
-        <button class="btn-ok" id="submitBtn" onclick="submitNewItem()">台所に追加</button>
+        <button class="btn-cancel" onclick="closeAddItemModal()">CANCEL</button>
+        <button class="btn-ok" id="submitBtn" onclick="submitNewItem()">ADD</button>
       </div>
     </div>
   </div>
@@ -459,8 +464,8 @@
     Object.keys(DATA).forEach(cat=>{
       const base = DATA[cat] || [];
       const cust = (customItems[cat] || []);
-      base.forEach((mob,i)=> out.push({cat, mob: effMob(cat,i,mob), i}));
-      cust.forEach((mob,j)=> out.push({cat, mob, i: base.length + j}));
+      base.forEach((mob,i)=>{ const m=effMob(cat,i,mob); if(!m.hidden) out.push({cat, mob:m, i}); });
+      cust.forEach((mob,j)=>{ if(!mob.hidden) out.push({cat, mob, i: base.length + j}); });
     });
     return out;
   }
@@ -570,8 +575,8 @@
     document.getElementById("itemKind").value = "food";
     document.getElementById("itemMemo").value = "";
     setMeal(0);
-    document.getElementById("formHead").textContent = "＋ 新規登録";
-    document.getElementById("submitBtn").textContent = "台所に追加";
+    document.getElementById("formHead").textContent = "＋ NEW ITEM";
+    document.getElementById("submitBtn").textContent = "ADD";
   }
 
   // 全品目（既存＋追加）を一覧描画（編集・削除ボタン付き）
@@ -580,24 +585,46 @@
     el.innerHTML = "";
     const head = document.createElement("div");
     head.className = "edit-formhead";
-    head.textContent = "登録済みの品目（タップで編集）";
+    head.textContent = "ITEMS ── タップで編集";
     el.appendChild(head);
+    const archived = [];
     Object.keys(DATA).forEach(cat=>{
-      // 既存品
       (DATA[cat]||[]).forEach((m,idx)=>{
         const mob = effMob(cat,idx,m);
+        if(mob.hidden){ archived.push({cat, idx, mob, type:"base"}); return; }
         el.appendChild(makeEditRow(cat, idx, mob, "base"));
       });
-      // 追加品
       (customItems[cat]||[]).forEach((mob,idx)=>{
+        if(mob.hidden){ archived.push({cat, idx, mob, type:"custom"}); return; }
         el.appendChild(makeEditRow(cat, idx, mob, "custom"));
       });
     });
+    // ARCHIVE（非表示品目・復元可能）
+    if(archived.length){
+      const ah = document.createElement("div");
+      ah.className = "edit-formhead archive";
+      ah.textContent = `🗄 ARCHIVE（${archived.length}）── 復元/完全削除`;
+      el.appendChild(ah);
+      archived.forEach(({cat,idx,mob,type})=>{
+        const r = document.createElement("div");
+        r.className = "edit-row archived";
+        r.innerHTML = `
+          <div class="edit-info">
+            <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
+            <span class="edit-nm">${mob.nm}</span>
+            <span class="edit-cat">${catAbbr(cat)}</span>
+          </div>
+          <div class="edit-acts">
+            <button class="edit-btn restore" data-type="${type}" data-cat="${cat}" data-idx="${idx}">↩</button>
+            <button class="edit-btn purge" data-type="${type}" data-cat="${cat}" data-idx="${idx}">✕</button>
+          </div>`;
+        el.appendChild(r);
+      });
+    }
   }
   function makeEditRow(cat, idx, mob, type){
     const r = document.createElement("div");
     r.className = "edit-row";
-    const delBtn = type==="custom" ? `<button class="edit-btn del" data-type="${type}" data-cat="${cat}" data-idx="${idx}">🗑</button>` : "";
     r.innerHTML = `
       <div class="edit-info">
         <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
@@ -606,7 +633,7 @@
       </div>
       <div class="edit-acts">
         <button class="edit-btn ed" data-type="${type}" data-cat="${cat}" data-idx="${idx}">✎</button>
-        ${delBtn}
+        <button class="edit-btn del" data-type="${type}" data-cat="${cat}" data-idx="${idx}">🗑</button>
       </div>`;
     return r;
   }
@@ -618,11 +645,41 @@
     const type = btn.dataset.type, cat = btn.dataset.cat, idx = +btn.dataset.idx;
     const mob = type==="base" ? effMob(cat,idx,DATA[cat][idx]) : (customItems[cat]||[])[idx];
     if(!mob) return;
+    if(btn.classList.contains("restore")){
+      // アーカイブから復元
+      if(type==="base"){
+        const k = cat+"::"+idx;
+        if(overrides[k]){ delete overrides[k].hidden; if(Object.keys(overrides[k]).length===0) delete overrides[k]; saveOverrides(); }
+      } else {
+        if(customItems[cat] && customItems[cat][idx]){ delete customItems[cat][idx].hidden; saveCustomItems(); }
+      }
+      renderEditList(); render();
+      return;
+    }
+    if(btn.classList.contains("purge")){
+      // 完全削除（customのみ実体削除。baseはhidden維持のまま＝コード上消せないので警告）
+      if(type==="custom"){
+        if(confirm(`「${mob.nm}」を完全に削除しますか？\n※この操作は取り消せません`)){
+          customItems[cat].splice(idx,1);
+          if(customItems[cat].length===0) delete customItems[cat];
+          saveCustomItems();
+          renderEditList(); render();
+        }
+      } else {
+        alert("元からある品目はアーカイブ（非表示）までです。\n完全削除はできません（いつでも復元可能）。");
+      }
+      return;
+    }
     if(btn.classList.contains("del")){
-      if(confirm(`「${mob.nm}」を削除しますか？`)){
-        customItems[cat].splice(idx,1);
-        if(customItems[cat].length===0) delete customItems[cat];
-        saveCustomItems();
+      if(confirm(`「${mob.nm}」をアーカイブ（非表示）にしますか？\n※EDIT MODE下部の ARCHIVE からいつでも復元できます`)){
+        if(type==="base"){
+          const k = cat+"::"+idx;
+          overrides[k] = Object.assign({}, overrides[k], {hidden:true});
+          saveOverrides();
+        } else {
+          customItems[cat][idx].hidden = true;
+          saveCustomItems();
+        }
         renderEditList();
         render();
       }
@@ -639,8 +696,8 @@
       document.getElementById("itemKind").value = mob.kind || "food";
       document.getElementById("itemMemo").value = mob.memo || "";
       setMeal(mob.meal || 0);
-      document.getElementById("formHead").textContent = `✎ 編集中：${mob.nm}`;
-      document.getElementById("submitBtn").textContent = "更新する";
+      document.getElementById("formHead").textContent = `✎ EDIT：${mob.nm}`;
+      document.getElementById("submitBtn").textContent = "UPDATE";
       document.getElementById("addItemModal").scrollTop = 99999;
     }
   });
@@ -667,7 +724,7 @@
       saveOverrides();
       editTarget = null;
       resetForm(); renderEditList(); render();
-      alert("✅ " + nm + " を更新しました");
+      alert("✅ UPDATED：" + nm);
     } else if(editTarget && editTarget.type === "custom"){
       // 追加品の更新
       const src = customItems[editTarget.cat][editTarget.idx];
@@ -683,7 +740,7 @@
       saveCustomItems();
       editTarget = null;
       resetForm(); renderEditList(); render();
-      alert("✅ " + nm + " を更新しました");
+      alert("✅ UPDATED：" + nm);
     } else {
       // 新規登録
       const newItem = Object.assign({ic:"📦", nt:"", pri:"low"}, fields);
@@ -691,7 +748,7 @@
       customItems[cat].push(newItem);
       saveCustomItems();
       resetForm(); renderEditList(); render();
-      alert("🎉 " + nm + " を台所に追加しました！");
+      alert("🎉 ADDED：" + nm);
     }
   }
   window.submitNewItem = submitNewItem;
@@ -838,8 +895,8 @@
         return a.i - b.i;
       });
     } else {
-      // 場所モード：現在カテゴリの品目を tier順で
-      entries = currentList.map((mob,i)=>({cat:current, mob, i}));
+      // 場所モード：現在カテゴリの品目を tier順で（hidden除外、indexは保持）
+      entries = currentList.map((mob,i)=>({cat:current, mob, i})).filter(e=>!e.mob.hidden);
       entries.sort((a,b)=>{
         const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
         if(ta !== tb) return ta - tb;
