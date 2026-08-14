@@ -186,6 +186,22 @@
   .form-actions .btn-cancel{background:transparent;color:var(--sub);}
   .btn-add-item{margin-left:auto;padding:6px 12px;border:1px solid var(--sys);border-radius:3px;background:rgba(20,44,78,0.4);color:var(--sys);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.05em;text-shadow:0 0 6px var(--sys-glow);box-shadow:0 0 10px rgba(56,138,221,0.2);}
   .btn-add-item:active{transform:scale(.95);}
+
+  /* ---- 表示軸トグル ---- */
+  .modebar{display:flex;align-items:center;gap:10px;margin:14px 0 2px;}
+  .modelabel{font-size:11px;color:var(--sub);letter-spacing:.18em;}
+  .modetoggle{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .modeopt{padding:6px 14px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s;background:transparent;}
+  .modeopt+.modeopt{border-left:1px solid var(--line);}
+  .modeopt.active{color:var(--sys);background:rgba(56,138,221,0.28);box-shadow:inset 0 0 12px rgba(56,138,221,0.15);text-shadow:0 0 6px var(--sys-glow);}
+  /* タブ内のランクマーク（S/A/G） */
+  .tab .rankmark{display:inline-flex;align-items:center;justify-content:center;width:17px;height:15px;
+    font-size:10px;font-weight:900;border-radius:2px;margin-right:5px;border:1px solid currentColor;
+    font-family:"Segoe UI",system-ui;vertical-align:1px;opacity:.9;}
+  /* 品目行の現在地ラベル（ランクモード） */
+  .catloc{font-size:10px;color:var(--sub);margin-top:2px;letter-spacing:.05em;}
+  .mob.warn-stock .catloc{color:#c99a5a;}
+  .mob.low-stock .catloc{color:#a35a54;}
 </style>
 </head>
 <body>
@@ -197,7 +213,15 @@
       <h1>KITCHEN QUEST</h1>
       <div class="loc">DUNGEON —— 台所迷宮</div>
     </div>
-    <div class="tag">v0.6</div>
+    <div class="tag">v0.7</div>
+  </div>
+
+  <div class="modebar">
+    <span class="modelabel">表示軸</span>
+    <div class="modetoggle" id="modeToggle">
+      <div class="modeopt active" data-mode="place">⊞ 場所</div>
+      <div class="modeopt" data-mode="rank">⬢ ランク</div>
+    </div>
   </div>
 
   <div style="display:flex;align-items:center;margin:10px 0;">
@@ -362,8 +386,26 @@
   };
   const RANK_FALLBACK = {mark:"A", jp:"常連", cls:"rA"};
   function rankOf(mob){ return RANKS[mob && mob.tier] || RANK_FALLBACK; }
+  // 全カテゴリの品目を {cat, mob, i}（i=そのカテゴリ内index）で列挙。カスタム品も含む。
+  function allEntries(){
+    const out = [];
+    Object.keys(DATA).forEach(cat=>{
+      const base = DATA[cat] || [];
+      const cust = (customItems[cat] || []);
+      const merged = [...base, ...cust];
+      merged.forEach((mob,i)=> out.push({cat, mob, i}));
+    });
+    return out;
+  }
   const CATS = Object.keys(DATA);
   const BUY_TAB = "買い出し候補";
+  // 場所ごとの絵文字（ランクモードで各行に現在地を表示）
+  const CAT_ICON = {"冷蔵庫":"❄", "冷凍庫":"🧊", "パントリー":"📦", "その他":"🔖"};
+  // 表示軸モード: "place"(場所) / "rank"(ランク)
+  let viewMode = "place";
+  // ランクモードのタブ（RANKSのキー順＝S,A,…,G）。買い出しは共通で末尾。
+  const RANK_TABS = Object.keys(RANKS).map(Number).sort((a,b)=>a-b); // [1,2,9]
+  let currentRank = RANK_TABS[0]; // ランクモードで選択中のランク番号
   const BUY_THRESHOLD = 1; // 既定の警戒ライン（品目ごとに warn で上書き可）
   function warnOf(mob){ return (typeof mob.warn === "number") ? mob.warn : BUY_THRESHOLD; }
   // 在庫レベル判定: "dead"(0) / "low"(危険=warnの1/4以下) / "warn"(警戒=warn以下) / "ok"(通常)
@@ -442,14 +484,27 @@
   const tabsEl = document.getElementById("tabs");
   function renderTabs(){
     tabsEl.innerHTML = "";
-    CATS.forEach(cat=>{
-      const t = document.createElement("div");
-      t.className = "tab" + (cat===current ? " active" : "");
-      const count = (DATA[cat].length) + (customItems[cat]?.length || 0);
-      t.innerHTML = `${cat}<span class="n">${count}</span>`;
-      t.onclick = ()=>{ current = cat; render(); };
-      tabsEl.appendChild(t);
-    });
+    if(viewMode === "place"){
+      CATS.forEach(cat=>{
+        const t = document.createElement("div");
+        t.className = "tab" + (current===cat && current!==BUY_TAB ? " active" : "");
+        const count = (DATA[cat].length) + (customItems[cat]?.length || 0);
+        t.innerHTML = `${cat}<span class="n">${count}</span>`;
+        t.onclick = ()=>{ current = cat; render(); };
+        tabsEl.appendChild(t);
+      });
+    } else {
+      // ランクモード：S / A / … / G
+      RANK_TABS.forEach(rk=>{
+        const r = RANKS[rk];
+        const t = document.createElement("div");
+        t.className = "tab" + (current!==BUY_TAB && currentRank===rk ? " active" : "");
+        const count = allEntries().filter(e=>(e.mob.tier|| 2)===rk).length;
+        t.innerHTML = `<span class="rankmark ${r.cls}">${r.mark}</span>${r.jp}<span class="n">${count}</span>`;
+        t.onclick = ()=>{ current = "__RANK__"; currentRank = rk; render(); };
+        tabsEl.appendChild(t);
+      });
+    }
     const buyCount = countBuyList();
     const bt = document.createElement("div");
     bt.className = "tab buy" + (current===BUY_TAB ? " active" : "");
@@ -476,7 +531,7 @@
 
   function renderRoster(){
     roster.innerHTML = "";
-    // currentカテゴリの品目リストを作成（標準 + カスタム）
+    // 場所モード時：currentカテゴリの品目リスト（標準+カスタム）
     const baseList = DATA[current] || [];
     const customList = customItems[current] || [];
     currentList = [...baseList, ...customList];
@@ -526,23 +581,46 @@
 
     statusWrap.style.display = "flex";
     footNote.style.display = "block";
-    const indexed = currentList.map((mob,i)=>({mob,i}));
-    indexed.sort((a,b)=>{
-      const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
-      if(ta !== tb) return ta - tb;
-      return a.i - b.i; // tierが同じなら元の並びを保つ
-    });
-    indexed.forEach(({mob,i})=>{
-      const q = getQty(current,i,mob);
+    statusWrap.style.display = "flex";
+    footNote.style.display = "block";
+
+    // 表示する {cat, mob, i} のリストを、モードに応じて用意
+    let entries;
+    let showCatLabel = false;
+    if(viewMode === "rank"){
+      // ランクモード：全場所から選択中ランクの品目を集約
+      entries = allEntries().filter(e => (e.mob.tier || 2) === currentRank);
+      showCatLabel = true; // 各行に現在地を表示
+      // 並び：場所→元index の順で安定させる
+      const catOrder = {}; CATS.forEach((c,idx)=> catOrder[c]=idx);
+      entries.sort((a,b)=>{
+        if(catOrder[a.cat] !== catOrder[b.cat]) return catOrder[a.cat] - catOrder[b.cat];
+        return a.i - b.i;
+      });
+    } else {
+      // 場所モード：現在カテゴリの品目を tier順で
+      entries = currentList.map((mob,i)=>({cat:current, mob, i}));
+      entries.sort((a,b)=>{
+        const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
+        if(ta !== tb) return ta - tb;
+        return a.i - b.i;
+      });
+    }
+
+    entries.forEach(({cat,mob,i})=>{
+      const q = getQty(cat,i,mob);
       const lvl = stockLevel(q, mob);          // ok / warn / low / dead
       const stateCls = lvl==="warn" ? " warn-stock" : lvl==="low" ? " low-stock" : lvl==="dead" ? " dead" : "";
       const sliderCls = lvl==="warn" ? " warn" : lvl==="low" ? " low" : "";
       const el = document.createElement("div");
       el.className = "mob" + stateCls;
       el.dataset.i = i;
+      el.dataset.cat = cat;
+      const catLabel = showCatLabel ? `<div class="catloc">${CAT_ICON[cat]||""} ${cat}</div>` : "";
       el.innerHTML = `
         <div class="meta">
           <div class="nm"><span class="tierbadge ${rankOf(mob).cls}" title="${rankOf(mob).jp}">${rankOf(mob).mark}</span>${mob.nm}</div>
+          ${catLabel}
           ${mob.unit==="%" ? (()=>{const mx=Math.max(100,q);return `<input type="range" class="stock-slider${sliderCls}" min="0" max="${mx}" step="5" value="${q}" style="--p:${(q/mx*100)}%">`})() : ""}
         </div>
         <div class="step">
@@ -558,9 +636,15 @@
 
   function refreshStatus(){
     let total=0, slain=0, low=0;
-    const list = DATA[current];
-    list.forEach((mob,i)=>{
-      const q = getQty(current,i,mob);
+    let list;
+    if(viewMode === "rank"){
+      list = allEntries().filter(e => (e.mob.tier || 2) === currentRank)
+                         .map(e => ({mob:e.mob, cat:e.cat, i:e.i}));
+    } else {
+      list = currentList.map((mob,i)=>({mob, cat:current, i}));
+    }
+    list.forEach(({mob,cat,i})=>{
+      const q = getQty(cat,i,mob);
       total++;
       if(q<=0) slain++;
       else if(q<=warnOf(mob)) low++;
@@ -570,17 +654,25 @@
     document.querySelector("#s-low b").textContent = low;
   }
 
+  // 行要素から {cat, i, mob} を取り出す共通関数（場所/ランク両モード対応）
+  function entryFromEl(mobEl){
+    const cat = mobEl.dataset.cat;
+    const i = +mobEl.dataset.i;
+    const merged = [...(DATA[cat]||[]), ...((customItems[cat]||[]))];
+    return {cat, i, mob: merged[i]};
+  }
+
   roster.addEventListener("click", e=>{
     const btn = e.target.closest(".btn");
     if(!btn) return;
     const mobEl = btn.closest(".mob");
-    const i = +mobEl.dataset.i;
-    const mob = DATA[current][i];
+    const {cat,i,mob} = entryFromEl(mobEl);
+    if(!mob) return;
     const step = mob.step || 1;
     const dir = +btn.dataset.act; // -1 or 1
-    let v = getQty(current,i,mob) + (dir * step);
+    let v = getQty(cat,i,mob) + (dir * step);
     if(v<0) v=0;
-    setQty(current,i,v);
+    setQty(cat,i,v);
     render(); // 数値・バッジ・買い出し候補・危険域を丸ごと再計算
   });
 
@@ -589,8 +681,7 @@
     const s = e.target.closest(".stock-slider");
     if(!s) return;
     const mobEl = s.closest(".mob");
-    const i = +mobEl.dataset.i;
-    const mob = currentList[i] || DATA[current][i];
+    const {mob} = entryFromEl(mobEl);
     const q = +s.value, mx = +s.max;
     s.style.setProperty("--p", (q/mx*100)+"%");
     const qEl = mobEl.querySelector(".q");
@@ -609,20 +700,45 @@
     const s = e.target.closest(".stock-slider");
     if(!s) return;
     const mobEl = s.closest(".mob");
-    const i = +mobEl.dataset.i;
-    setQty(current, i, +s.value);
+    const {cat,i} = entryFromEl(mobEl);
+    setQty(cat, i, +s.value);
     render();
   });
 
   function render(){
     renderTabs();
     renderRoster();
-    document.getElementById("footTag").textContent =
-      current===BUY_TAB ? "在庫が薄いものを自動で炙り出す、警戒リスト" : `${current}ダンジョン ── Kitchen Quest`;
+    let footLabel;
+    if(current===BUY_TAB){
+      footLabel = "在庫が薄いものを自動で炙り出す、警戒リスト";
+    } else if(viewMode==="rank"){
+      const r = RANKS[currentRank] || RANK_FALLBACK;
+      footLabel = `${r.mark} ${r.jp} ── 全ダンジョン横断`;
+    } else {
+      footLabel = `${current}ダンジョン ── Kitchen Quest`;
+    }
+    document.getElementById("footTag").textContent = footLabel;
   }
 
   document.getElementById("btnAddItem").addEventListener("click", openAddItemModal);
-  
+
+  // ---- 表示軸トグル ----
+  document.getElementById("modeToggle").addEventListener("click", e=>{
+    const opt = e.target.closest(".modeopt");
+    if(!opt) return;
+    const mode = opt.dataset.mode;
+    if(mode === viewMode) return;
+    viewMode = mode;
+    // トグルの見た目更新
+    document.querySelectorAll("#modeToggle .modeopt").forEach(o=>{
+      o.classList.toggle("active", o.dataset.mode === viewMode);
+    });
+    // モード切替時、選択タブを各モードの先頭にリセット（買い出しは維持しない）
+    if(viewMode === "place"){ current = CATS[0]; }
+    else { current = "__RANK__"; currentRank = RANK_TABS[0]; }
+    render();
+  });
+
   render();
 </script>
 </body>
