@@ -9,133 +9,191 @@
 <title>Kitchen Quest — 台所迷宮</title>
 <style>
   :root{
-    --bg:#0e1116; --panel:#161c26; --panel2:#1d2634; --line:#2a3547;
-    --ink:#e8eef7; --sub:#8ea0b8; --gold:#e7b84f; --gold-dim:#8a6d24;
-    --hp:#4fbf7a; --hp-dim:#264d38; --danger:#e0603a; --mp:#4f8fe0; --violet:#9a6fe0;
+    --bg:#05070d; --panel:rgba(12,26,48,0.55); --panel2:rgba(16,34,60,0.6); --line:rgba(90,180,255,0.35);
+    --line-bright:#7fc8ff; --ink:#dceeff; --sub:#5a86b8;
+    --sys:#7fc8ff; --sys-deep:#38a0dd; --sys-glow:rgba(127,200,255,0.6);
+    --hp:#6ee7c8; --hp-deep:#2fbf9a; --hp-glow:rgba(110,231,200,0.55);
+    --warn:#ffa94d; --warn-deep:#e08828; --warn-glow:rgba(255,169,77,0.55);
+    --danger:#ff6a5a; --danger-deep:#e0483a; --danger-glow:rgba(255,106,90,0.6);
+    --gold:#e7b84f;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
   body{
-    background:radial-gradient(120% 60% at 50% -10%, #1b2740 0%, transparent 60%), var(--bg);
+    background:radial-gradient(130% 55% at 50% -8%, rgba(56,138,221,0.22) 0%, transparent 62%), var(--bg);
     color:var(--ink); font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
     min-height:100vh; padding:16px 14px 40px; max-width:460px;margin:0 auto; letter-spacing:.02em;
+    position:relative;
   }
-  .crest{display:flex;align-items:center;gap:11px;padding:14px 16px;border:1px solid var(--line);
-    border-radius:16px;background:linear-gradient(180deg,var(--panel2),var(--panel));
-    box-shadow:0 0 0 1px #0a0d12 inset, 0 8px 24px rgba(0,0,0,.35);}
-  .sigil{width:42px;height:42px;flex:none;border-radius:11px;background:linear-gradient(150deg,var(--gold),#a97e22);
-    display:grid;place-items:center;color:#20160a;font-weight:900;font-size:22px;box-shadow:0 0 14px rgba(231,184,79,.35);}
-  .crest h1{font-size:17px;font-weight:800;letter-spacing:.06em;}
-  .crest .loc{font-size:11.5px;color:var(--sub);margin-top:2px;letter-spacing:.1em;}
-  .crest .tag{margin-left:auto;font-size:10px;color:var(--gold);border:1px solid var(--gold-dim);
-    border-radius:999px;padding:3px 9px;letter-spacing:.1em;}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(90,180,255,0.022) 3px,transparent 4px);
+  }
+  body>*{position:relative;z-index:1;}
 
+  /* ---- ヘッダー：システムウィンドウ ---- */
+  .crest{display:flex;align-items:center;gap:11px;padding:14px 16px;position:relative;
+    border:1.5px solid var(--line);border-radius:4px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    box-shadow:0 0 24px rgba(56,138,221,0.28), inset 0 0 30px rgba(56,138,221,0.06);}
+  .crest::before,.crest::after{content:"";position:absolute;width:16px;height:16px;pointer-events:none;}
+  .crest::before{top:-1px;left:-1px;border-top:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px -1px 8px var(--sys-glow);}
+  .crest::after{top:-1px;right:-1px;border-top:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px -1px 8px var(--sys-glow);}
+  .crest .corners::before,.crest .corners::after{content:"";position:absolute;width:16px;height:16px;pointer-events:none;}
+  .crest .corners::before{bottom:-1px;left:-1px;border-bottom:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px 1px 8px var(--sys-glow);}
+  .crest .corners::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px 1px 8px var(--sys-glow);}
+  .sigil{width:42px;height:42px;flex:none;border-radius:4px;border:1.5px solid var(--sys);
+    background:rgba(20,44,78,0.5);display:grid;place-items:center;color:var(--sys);
+    font-weight:900;font-size:22px;box-shadow:0 0 14px var(--sys-glow),inset 0 0 10px rgba(56,138,221,0.2);
+    text-shadow:0 0 8px var(--sys-glow);}
+  .crest h1{font-size:17px;font-weight:800;letter-spacing:.14em;text-shadow:0 0 10px var(--sys-glow);}
+  .crest .loc{font-size:11px;color:var(--sub);margin-top:3px;letter-spacing:.22em;}
+  .crest .tag{margin-left:auto;font-size:10px;color:var(--sys);border:1px solid var(--line);
+    border-radius:3px;padding:3px 9px;letter-spacing:.1em;background:rgba(20,44,78,0.4);
+    text-shadow:0 0 6px var(--sys-glow);}
+
+  /* ---- タブ ---- */
   .tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto;padding-bottom:2px;}
-  .tab{flex:none;padding:8px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel);
-    color:var(--sub);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;}
-  .tab.active{background:linear-gradient(180deg,#2a3547,#1d2634);color:var(--gold);border-color:var(--gold-dim);}
-  .tab .n{opacity:.65;font-weight:500;margin-left:3px;}
-  .tab.buy.active{color:var(--danger);border-color:var(--danger);}
+  .tab{flex:none;padding:8px 13px;border-radius:3px;border:1px solid var(--line);background:var(--panel);
+    color:var(--sub);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;}
+  .tab.active{background:rgba(20,44,78,0.55);color:var(--sys);border-color:var(--sys);
+    box-shadow:0 0 12px rgba(56,138,221,0.3),inset 0 0 12px rgba(56,138,221,0.1);text-shadow:0 0 6px var(--sys-glow);}
+  .tab .n{opacity:.6;font-weight:500;margin-left:3px;}
+  .tab.buy.active{color:var(--danger);border-color:var(--danger);box-shadow:0 0 12px var(--danger-glow);text-shadow:0 0 6px var(--danger-glow);}
 
+  /* ---- ステータス ---- */
   .status{display:flex;gap:8px;margin:4px 2px 14px;}
-  .stat{flex:1;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:9px 11px;text-align:center;}
-  .stat b{display:block;font-size:20px;font-weight:900;line-height:1;}
+  .stat{flex:1;border:1px solid var(--line);border-radius:3px;background:rgba(20,44,78,0.35);padding:9px 11px;text-align:center;}
+  .stat b{display:block;font-size:20px;font-weight:900;line-height:1;color:var(--sys);text-shadow:0 0 10px var(--sys-glow);}
   .stat span{font-size:10px;color:var(--sub);letter-spacing:.08em;}
-  .stat.cleared b{color:var(--gold);} .stat.low b{color:var(--danger);}
+  .stat.cleared{border-color:rgba(110,231,200,0.4);background:rgba(20,60,54,0.32);}
+  .stat.cleared b{color:var(--hp);text-shadow:0 0 10px var(--hp-glow);}
+  .stat.low{border-color:rgba(255,106,90,0.45);background:rgba(60,22,22,0.35);}
+  .stat.low b{color:var(--danger);text-shadow:0 0 10px var(--danger-glow);}
 
+  /* ---- モブ（品目行） ---- */
   .roster{display:flex;flex-direction:column;gap:9px;}
-  .mob{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;
+  .mob{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-left:3px solid var(--sys);border-radius:3px;
     background:linear-gradient(180deg,var(--panel2),var(--panel));padding:11px 12px;position:relative;
-    overflow:hidden;transition:opacity .25s, filter .25s;}
-  .mob::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--line);opacity:.8;}
-  .mob.low-stock{border-color:var(--danger);background:linear-gradient(180deg,#241a18,#1d1614);}
-  .mob.low-stock::before{background:var(--danger);}
+    overflow:hidden;transition:opacity .25s, filter .25s;box-shadow:inset 0 0 16px rgba(56,138,221,0.05);}
+  /* 警戒＝オレンジ */
+  .mob.warn-stock{border-color:var(--warn);border-left-color:var(--warn);
+    background:linear-gradient(180deg,rgba(48,34,14,0.6),rgba(30,22,10,0.6));box-shadow:inset 0 0 16px rgba(255,169,77,0.08);}
+  /* 危険＝赤 */
+  .mob.low-stock{border-color:var(--danger);border-left-color:var(--danger);
+    background:linear-gradient(180deg,rgba(48,18,18,0.65),rgba(30,12,12,0.65));
+    box-shadow:inset 0 0 16px rgba(255,106,90,0.1),0 0 12px rgba(255,106,90,0.15);}
   .meta{flex:1;min-width:0;}
   .meta .nm{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .buyflag{font-size:9px;letter-spacing:.05em;border-radius:6px;padding:1.5px 6px;margin-right:6px;
+  .mob.warn-stock .nm{color:#ffdcae;}
+  .mob.low-stock .nm{color:#ffd0ca;}
+  .buyflag{font-size:9px;letter-spacing:.05em;border-radius:3px;padding:1.5px 6px;margin-right:6px;
     font-weight:800;color:var(--danger);border:1px solid var(--danger);vertical-align:1px;}
-  .tierbadge{font-size:9px;letter-spacing:.05em;border-radius:6px;padding:1.5px 6px;margin-right:5px;
-    font-weight:800;vertical-align:1px;}
-  .tierbadge.t1{background:rgba(224,96,58,.18);color:var(--danger);}
-  .tierbadge.t2{background:rgba(231,184,79,.15);color:var(--gold);}
-  .tierbadge.t3{background:rgba(154,111,224,.18);color:var(--violet);}
+  .tierbadge{font-size:9px;letter-spacing:.05em;border-radius:3px;padding:1.5px 6px;margin-right:5px;
+    font-weight:800;vertical-align:1px;border:1px solid transparent;}
+  .tierbadge.t1{background:rgba(255,106,90,.15);color:var(--danger);border-color:rgba(255,106,90,.4);}
+  .tierbadge.t2{background:rgba(127,200,255,.13);color:var(--sys);border-color:rgba(127,200,255,.4);}
+  .tierbadge.t3{background:rgba(154,111,224,.16);color:#b79bf0;border-color:rgba(154,111,224,.4);}
   .step{display:flex;align-items:center;gap:6px;flex:none;}
   .qty{min-width:46px;text-align:center;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;}
   .qty small{font-size:10px;color:var(--sub);font-weight:600;display:block;}
-  .btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:#0c1017;color:var(--ink);
+  .btn{width:32px;height:32px;border-radius:4px;border:1px solid var(--line);background:rgba(8,16,28,0.8);color:var(--ink);
     font-size:19px;font-weight:800;display:grid;place-items:center;cursor:pointer;user-select:none;
     transition:transform .06s, background .15s, border-color .15s;}
   .btn:active{transform:scale(.86);}
-  .btn.minus:active{background:var(--hp-dim);border-color:var(--hp);}
-  .btn.plus:active{background:#243b5c;border-color:var(--mp);}
-  .gauge{width:100%;height:5px;border-radius:3px;background:#0c1017;border:1px solid var(--line);
+  .btn.minus:active{background:rgba(224,72,58,0.35);border-color:var(--danger);}
+  .btn.plus:active{background:rgba(56,138,221,0.4);border-color:var(--sys);}
+
+  /* ---- スライダー（%ゲージ） ---- */
+  .gauge{width:100%;height:5px;border-radius:3px;background:rgba(8,16,28,0.8);border:1px solid var(--line);
     margin-top:5px;overflow:hidden;}
-  .gauge-fill{height:100%;background:var(--hp);transition:width .25s;}
+  .gauge-fill{height:100%;background:var(--sys);transition:width .25s;}
   .gauge-fill.low{background:var(--danger);}
   .stock-slider{-webkit-appearance:none;appearance:none;display:block;width:100%;height:14px;border-radius:7px;
-    background:linear-gradient(90deg,var(--hp) var(--p,50%),#0c1017 var(--p,50%));
-    border:1px solid var(--line);margin-top:7px;cursor:pointer;touch-action:none;}
-  .stock-slider.low{background:linear-gradient(90deg,var(--danger) var(--p,50%),#0c1017 var(--p,50%));}
+    background:linear-gradient(90deg,var(--sys-deep) 0%,var(--sys) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));
+    border:1px solid var(--line);margin-top:7px;cursor:pointer;touch-action:none;
+    box-shadow:0 0 8px rgba(56,138,221,0.25);}
+  .stock-slider.warn{background:linear-gradient(90deg,var(--warn-deep) 0%,var(--warn) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));box-shadow:0 0 8px rgba(255,169,77,0.3);}
+  .stock-slider.low{background:linear-gradient(90deg,var(--danger-deep) 0%,var(--danger) var(--p,50%),rgba(8,16,28,0.85) var(--p,50%));box-shadow:0 0 8px rgba(255,106,90,0.3);}
   .stock-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
-    background:var(--ink);border:2px solid var(--hp);box-shadow:0 0 8px rgba(79,191,122,.55);}
-  .stock-slider.low::-webkit-slider-thumb{border-color:var(--danger);box-shadow:0 0 8px rgba(224,96,58,.55);}
+    background:var(--ink);border:2px solid var(--sys);box-shadow:0 0 10px var(--sys-glow);}
+  .stock-slider.warn::-webkit-slider-thumb{border-color:var(--warn);box-shadow:0 0 10px var(--warn-glow);}
+  .stock-slider.low::-webkit-slider-thumb{border-color:var(--danger);box-shadow:0 0 10px var(--danger-glow);}
   .stock-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--ink);
-    border:2px solid var(--hp);box-shadow:0 0 8px rgba(79,191,122,.55);}
-  .stock-slider.low::-moz-range-thumb{border-color:var(--danger);box-shadow:0 0 8px rgba(224,96,58,.55);}
-  .mob.dead{opacity:.4;filter:grayscale(.7);}
-  .mob.dead::before{background:#3a4557;}
+    border:2px solid var(--sys);box-shadow:0 0 10px var(--sys-glow);}
+  .stock-slider.warn::-moz-range-thumb{border-color:var(--warn);box-shadow:0 0 10px var(--warn-glow);}
+  .stock-slider.low::-moz-range-thumb{border-color:var(--danger);box-shadow:0 0 10px var(--danger-glow);}
+
+  /* ---- 討伐済み ---- */
+  .mob.dead{opacity:.4;filter:grayscale(.7);border-left-color:#3a5578;}
   .mob.dead .nm{text-decoration:line-through;}
   .slain{position:absolute;right:12px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:10px;font-weight:900;
-    letter-spacing:.12em;color:var(--gold);border:1.5px solid var(--gold);border-radius:6px;padding:2px 7px;
-    opacity:0;transition:opacity .25s;pointer-events:none;}
+    letter-spacing:.12em;color:var(--sys);border:1.5px solid var(--sys);border-radius:3px;padding:2px 7px;
+    opacity:0;transition:opacity .25s;pointer-events:none;text-shadow:0 0 6px var(--sys-glow);box-shadow:0 0 8px var(--sys-glow);}
   .mob.dead .slain{opacity:1;}
-  @keyframes hit{0%{background:rgba(224,96,58,.25);}100%{background:transparent;}}
+  @keyframes hit{0%{background:rgba(255,106,90,.25);}100%{background:transparent;}}
   .mob.hit{animation:hit .35s;}
 
-  /* buy list */
-  .buygrouptitle{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:.08em;margin:14px 2px 8px;}
+  /* ---- 買い出しリスト ---- */
+  .buygrouptitle{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:.08em;margin:14px 2px 8px;
+    display:flex;align-items:center;gap:8px;}
   .buygrouptitle:first-child{margin-top:2px;}
-  .buygrouptitle.must{color:var(--danger);}  .buyrow{display:flex;align-items:center;gap:12px;border:1px solid var(--danger);border-radius:14px;
-    background:linear-gradient(180deg,#241615,#1a1210);padding:12px 13px;margin-bottom:9px;}
-  .buyrow.mood{border-color:var(--gold-dim);background:linear-gradient(180deg,#221d13,#191510);}
-  .buyrow.mood .left{color:var(--gold);}
+  .buygrouptitle::before,.buygrouptitle::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);}
+  .buygrouptitle.must{color:var(--danger);text-shadow:0 0 6px var(--danger-glow);}
+  .buyrow{display:flex;align-items:center;gap:12px;border:1px solid var(--danger);border-left:3px solid var(--danger);border-radius:3px;
+    background:linear-gradient(180deg,rgba(48,20,18,0.6),rgba(28,12,12,0.6));padding:12px 13px;margin-bottom:9px;
+    box-shadow:inset 0 0 14px rgba(255,106,90,0.08);}
+  .buyrow.mood{border-color:var(--warn);border-left-color:var(--warn);background:linear-gradient(180deg,rgba(48,34,14,0.55),rgba(28,20,10,0.55));box-shadow:inset 0 0 14px rgba(255,169,77,0.08);}
+  .buyrow.mood .left{color:var(--warn);}
   .buyrow .icon{border-color:var(--danger);}
   .buyrow .nm{font-size:14px;font-weight:800;}
   .buyrow .nt{font-size:11px;color:var(--sub);margin-top:2px;}
   .buyrow .left{margin-left:auto;text-align:right;font-size:11px;color:var(--danger);font-weight:800;}
   .empty{text-align:center;color:var(--sub);font-size:12.5px;padding:30px 10px;line-height:1.8;}
-  .empty b{color:var(--hp);}
+  .empty b{color:var(--hp);text-shadow:0 0 6px var(--hp-glow);}
 
+  /* ---- フッター ---- */
   .foot{margin-top:20px;text-align:center;font-size:10.5px;color:var(--sub);line-height:1.7;letter-spacing:.05em;}
-  .foot b{color:var(--gold);font-weight:700;}
-  .note{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:11px 13px;font-size:11px;
-    color:var(--sub);line-height:1.75;background:rgba(255,255,255,.015);}
-  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;place-items:center;justify-content:center;}
+  .foot b{color:var(--sys);font-weight:700;}
+  .note{margin-top:14px;border:1px solid var(--line);border-radius:3px;padding:11px 13px;font-size:11px;
+    color:var(--sub);line-height:1.75;background:rgba(20,44,78,0.2);position:relative;}
+  .note b{color:var(--sys);}
+
+  /* ---- モーダル：システム通知 ---- */
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(2,4,8,.82);z-index:9999;place-items:center;justify-content:center;}
   .modal.show{display:grid;}
-  .modal-content{background:linear-gradient(180deg,var(--panel2),var(--panel));border:2px solid var(--gold);border-radius:16px;padding:20px;width:90%;max-width:420px;box-shadow:0 0 40px rgba(231,184,79,.4);}
-  .modal-title{font-size:16px;font-weight:900;color:var(--gold);letter-spacing:.1em;margin-bottom:16px;text-align:center;}
+  .modal-content{position:relative;background:linear-gradient(180deg,rgba(12,26,48,0.96),rgba(6,14,28,0.96));
+    border:1.5px solid var(--sys);border-radius:4px;padding:22px 20px;width:90%;max-width:420px;
+    box-shadow:0 0 40px rgba(56,138,221,0.4),inset 0 0 40px rgba(56,138,221,0.06);}
+  .modal-content::before,.modal-content::after{content:"";position:absolute;width:20px;height:20px;pointer-events:none;}
+  .modal-content::before{top:-1px;left:-1px;border-top:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px -1px 10px var(--sys-glow);}
+  .modal-content::after{top:-1px;right:-1px;border-top:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px -1px 10px var(--sys-glow);}
+  .modal-title{font-size:16px;font-weight:900;color:var(--sys);letter-spacing:.14em;margin-bottom:16px;text-align:center;
+    text-shadow:0 0 12px var(--sys-glow);border:1px solid var(--line);border-radius:3px;padding:8px;
+    background:rgba(20,44,78,0.35);}
   .modal-form{display:flex;flex-direction:column;gap:12px;}
   .form-group{display:flex;flex-direction:column;gap:4px;}
   .form-group label{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.08em;}
-  .form-group input,.form-group select{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-family:inherit;font-size:13px;}
-  .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 12px rgba(231,184,79,.3);}
+  .form-group input,.form-group select{background:rgba(8,16,28,0.7);border:1px solid var(--line);border-radius:3px;padding:8px 10px;color:var(--ink);font-family:inherit;font-size:13px;}
+  .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--sys);box-shadow:0 0 12px rgba(56,138,221,0.35);}
   .form-actions{display:flex;gap:8px;margin-top:12px;}
-  .form-actions button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--line);font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;}
-  .form-actions .btn-ok{background:var(--hp);color:#000;border-color:var(--hp);}
+  .form-actions button{flex:1;padding:10px;border-radius:3px;border:1px solid var(--line);font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.05em;}
+  .form-actions .btn-ok{background:rgba(56,138,221,0.25);color:var(--sys);border-color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .form-actions .btn-ok:active{transform:scale(.95);}
   .form-actions .btn-cancel{background:transparent;color:var(--sub);}
-  .btn-add-item{margin-left:auto;padding:6px 12px;border:1px solid var(--gold);border-radius:8px;background:transparent;color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.05em;}
+  .btn-add-item{margin-left:auto;padding:6px 12px;border:1px solid var(--sys);border-radius:3px;background:rgba(20,44,78,0.4);color:var(--sys);font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.05em;text-shadow:0 0 6px var(--sys-glow);box-shadow:0 0 10px rgba(56,138,221,0.2);}
   .btn-add-item:active{transform:scale(.95);}
 </style>
 </head>
 <body>
 
   <div class="crest">
+    <span class="corners"></span>
     <div class="sigil">⚔</div>
     <div>
       <h1>KITCHEN QUEST</h1>
       <div class="loc">DUNGEON —— 台所迷宮</div>
     </div>
-    <div class="tag">v0.3</div>
+    <div class="tag">v0.5</div>
   </div>
 
   <div style="display:flex;align-items:center;margin:10px 0;">
@@ -152,7 +210,8 @@
   <div class="roster" id="roster"></div>
 
   <div class="note" id="footNote">
-    ピッ = <b style="color:var(--hp)">−1 討伐</b> ／ ピッ = <b style="color:var(--mp)">+1 補充</b>。0になれば「討伐済み」。％ゲージは<b>スライダーで直接調整</b>（5%刻み）。<br>
+    ピッ = <b style="color:var(--danger)">−1 討伐</b> ／ ピッ = <b style="color:var(--sys)">+1 補充</b>。0になれば「討伐済み」。％ゲージは<b>スライダーで直接調整</b>（5%刻み）。<br>
+    在庫の色 ── <b style="color:var(--sys)">青＝通常</b> ／ <b style="color:var(--warn)">橙＝警戒</b> ／ <b style="color:var(--danger)">赤＝危険（残りわずか）</b>。<br>
     ※数値はこの端末・このブラウザ内だけに保存されます（localStorage）。他端末とは同期しません。<br>
     ※絵文字は品目ごとに手動設定。未設定の新規モブは既定で📦が表示されます。
   </div>
@@ -293,6 +352,15 @@
   const BUY_TAB = "買い出し候補";
   const BUY_THRESHOLD = 1; // 既定の警戒ライン（品目ごとに warn で上書き可）
   function warnOf(mob){ return (typeof mob.warn === "number") ? mob.warn : BUY_THRESHOLD; }
+  // 在庫レベル判定: "dead"(0) / "low"(危険=warnの1/4以下) / "warn"(警戒=warn以下) / "ok"(通常)
+  function stockLevel(q, mob){
+    const w = warnOf(mob);
+    if(q <= 0) return "dead";
+    if(q > w) return "ok";
+    // ここに来る時点で 0 < q <= w（買い出し候補）
+    if(q <= Math.max(1, w/4)) return "low";   // 危険＝赤（warnの1/4以下）
+    return "warn";                             // 警戒＝オレンジ
+  }
   let current = CATS[0];
 
   const STORE_KEY = "kitchenQuest_v2_state";
@@ -452,14 +520,16 @@
     });
     indexed.forEach(({mob,i})=>{
       const q = getQty(current,i,mob);
-      const isLow = q > 0 && q <= warnOf(mob);
+      const lvl = stockLevel(q, mob);          // ok / warn / low / dead
+      const stateCls = lvl==="warn" ? " warn-stock" : lvl==="low" ? " low-stock" : lvl==="dead" ? " dead" : "";
+      const sliderCls = lvl==="warn" ? " warn" : lvl==="low" ? " low" : "";
       const el = document.createElement("div");
-      el.className = "mob" + (isLow ? " low-stock" : "") + (q<=0 ? " dead" : "");
+      el.className = "mob" + stateCls;
       el.dataset.i = i;
       el.innerHTML = `
         <div class="meta">
           <div class="nm"><span class="tierbadge t${mob.tier||2}">${tierJP[mob.tier||2]}</span>${mob.nm}</div>
-          ${mob.unit==="%" ? (()=>{const mx=Math.max(100,q);return `<input type="range" class="stock-slider${isLow?' low':''}" min="0" max="${mx}" step="5" value="${q}" style="--p:${(q/mx*100)}%">`})() : ""}
+          ${mob.unit==="%" ? (()=>{const mx=Math.max(100,q);return `<input type="range" class="stock-slider${sliderCls}" min="0" max="${mx}" step="5" value="${q}" style="--p:${(q/mx*100)}%">`})() : ""}
         </div>
         <div class="step">
           <div class="btn minus" data-act="-1">−</div>
@@ -505,10 +575,21 @@
     const s = e.target.closest(".stock-slider");
     if(!s) return;
     const mobEl = s.closest(".mob");
+    const i = +mobEl.dataset.i;
+    const mob = currentList[i] || DATA[current][i];
     const q = +s.value, mx = +s.max;
     s.style.setProperty("--p", (q/mx*100)+"%");
     const qEl = mobEl.querySelector(".q");
     if(qEl) qEl.textContent = q;
+    // ドラッグ中も警戒/危険の色をリアルタイム反映
+    const lvl = stockLevel(q, mob);
+    s.classList.remove("warn","low");
+    if(lvl==="warn") s.classList.add("warn");
+    else if(lvl==="low") s.classList.add("low");
+    mobEl.classList.remove("warn-stock","low-stock","dead");
+    if(lvl==="warn") mobEl.classList.add("warn-stock");
+    else if(lvl==="low") mobEl.classList.add("low-stock");
+    else if(lvl==="dead") mobEl.classList.add("dead");
   });
   roster.addEventListener("change", e=>{
     const s = e.target.closest(".stock-slider");
