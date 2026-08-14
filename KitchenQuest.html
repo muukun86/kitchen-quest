@@ -185,7 +185,6 @@
 
   /* ---- 表示軸トグル ---- */
   .modebar{display:flex;align-items:center;gap:10px;margin:14px 0 2px;}
-  .modelabel{font-size:11px;color:var(--sub);letter-spacing:.18em;}
   .modetoggle{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;}
   .modeopt{padding:6px 11px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s;background:transparent;white-space:nowrap;}
   .modeopt+.modeopt{border-left:1px solid var(--line);}
@@ -225,11 +224,10 @@
   </div>
 
   <div class="modebar">
-    <span class="modelabel">表示軸</span>
     <div class="modetoggle" id="modeToggle">
-      <div class="modeopt active" data-mode="place">⊞ 場所</div>
-      <div class="modeopt" data-mode="rank">⬢ ランク</div>
       <div class="modeopt" data-mode="all">▤ ALL</div>
+      <div class="modeopt" data-mode="rank">⬢ RANK</div>
+      <div class="modeopt active" data-mode="place">⊞ AREA</div>
     </div>
   </div>
 
@@ -254,7 +252,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v0.9</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.0</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -476,7 +474,7 @@
     saveCustomItems();
     closeAddItemModal();
     render();
-    alert("🎉 " + nm + " を台所ダンジョンに追加しました！");
+    alert("🎉 " + nm + " を台所に追加しました！");
   }
   window.submitNewItem = submitNewItem;
   
@@ -743,11 +741,11 @@
       footLabel = "在庫が薄いものを自動で炙り出す、警戒リスト";
     } else if(viewMode==="rank"){
       const r = RANKS[currentRank] || RANK_FALLBACK;
-      footLabel = `${r.mark} ${r.jp} ── 全ダンジョン横断`;
+      footLabel = `${r.mark} ${r.jp} ── 全エリア横断`;
     } else if(viewMode==="all"){
       footLabel = `全品目 ── 台所のすべて`;
     } else {
-      footLabel = `${current}ダンジョン ── Kitchen Quest`;
+      footLabel = `${current}`;
     }
     document.getElementById("footTag").textContent = footLabel;
   }
