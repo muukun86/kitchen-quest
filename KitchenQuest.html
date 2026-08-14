@@ -42,10 +42,7 @@
   .crest .corners::before{bottom:-1px;left:-1px;border-bottom:2px solid var(--sys);border-left:2px solid var(--sys);box-shadow:-1px 1px 8px var(--sys-glow);}
   .crest .corners::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--sys);border-right:2px solid var(--sys);box-shadow:1px 1px 8px var(--sys-glow);}
   .emblem{width:44px;height:44px;flex:none;filter:drop-shadow(0 0 6px var(--sys-glow));}
-  .emblem-txt{fill:var(--sys);font-size:10.5px;font-weight:800;letter-spacing:.12em;font-family:"Segoe UI",system-ui,sans-serif;}
-  .emblem-star{fill:var(--sys);font-size:8px;}
-  .emblem-sword{fill:var(--sys);font-size:20px;}
-  .crest h1{font-size:18px;font-weight:800;letter-spacing:.16em;text-shadow:0 0 10px var(--sys-glow);}
+  .crest h1{font-size:clamp(15px,5.2vw,20px);font-weight:800;letter-spacing:.1em;white-space:nowrap;text-shadow:0 0 10px var(--sys-glow);}
 
   /* ---- タブ ---- */
   .tabs{display:flex;gap:6px;margin:14px 0 10px;overflow-x:auto;padding-bottom:2px;}
@@ -57,10 +54,11 @@
   .tab.buy.active{color:var(--danger);border-color:var(--danger);box-shadow:0 0 12px var(--danger-glow);text-shadow:0 0 6px var(--danger-glow);}
 
   /* ---- ステータス ---- */
-  .status{display:flex;gap:8px;margin:4px 2px 14px;}
-  .stat{flex:1;border:1px solid var(--line);border-radius:3px;background:rgba(20,44,78,0.35);padding:9px 11px;text-align:center;}
-  .stat b{display:block;font-size:20px;font-weight:900;line-height:1;color:var(--sys);text-shadow:0 0 10px var(--sys-glow);}
-  .stat span{font-size:10px;color:var(--sub);letter-spacing:.08em;}
+  .status{display:flex;gap:6px;margin:2px 2px 12px;}
+  .stat{flex:1;border:1px solid var(--line);border-radius:3px;background:rgba(20,44,78,0.35);
+    padding:5px 8px;display:flex;align-items:baseline;justify-content:center;gap:5px;}
+  .stat b{font-size:16px;font-weight:900;line-height:1;color:var(--sys);text-shadow:0 0 8px var(--sys-glow);}
+  .stat span{font-size:9px;color:var(--sub);letter-spacing:.06em;}
   .stat.cleared{border-color:rgba(110,231,200,0.4);background:rgba(20,60,54,0.32);}
   .stat.cleared b{color:var(--hp);text-shadow:0 0 10px var(--hp-glow);}
   .stat.low{border-color:rgba(255,106,90,0.45);background:rgba(60,22,22,0.35);}
@@ -208,17 +206,19 @@
     <span class="corners"></span>
     <div class="emblem" aria-label="Kitchen Quest">
       <svg viewBox="0 0 100 100" width="100%" height="100%">
-        <defs>
-          <path id="arcTop" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0" />
-          <path id="arcBot" d="M 50,50 m -37,0 a 37,37 0 1,0 74,0" />
-        </defs>
-        <circle cx="50" cy="50" r="47" fill="none" stroke="#7fc8ff" stroke-width="1.4" opacity="0.9"/>
-        <circle cx="50" cy="50" r="30" fill="none" stroke="#7fc8ff" stroke-width="1" opacity="0.55"/>
-        <text class="emblem-txt"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">KITCHEN</textPath></text>
-        <text class="emblem-txt"><textPath href="#arcBot" startOffset="50%" text-anchor="middle">QUEST</textPath></text>
-        <text x="19" y="53" class="emblem-star">★</text>
-        <text x="75" y="53" class="emblem-star">★</text>
-        <text x="50" y="59" text-anchor="middle" class="emblem-sword">⚔</text>
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#7fc8ff" stroke-width="2.4"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#7fc8ff" stroke-width="1" opacity="0.5"/>
+        <g stroke="#7fc8ff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <g transform="rotate(-22 50 50)">
+            <line x1="50" y1="26" x2="50" y2="74" stroke-width="3"/>
+            <path d="M 50,26 L 50,40" stroke-width="7"/>
+          </g>
+          <g transform="rotate(22 50 50)">
+            <line x1="50" y1="40" x2="50" y2="74" stroke-width="3"/>
+            <path d="M 46,24 L 46,34 M 50,24 L 50,34 M 54,24 L 54,34" stroke-width="2"/>
+            <path d="M 46,34 Q 50,40 54,34" stroke-width="2"/>
+          </g>
+        </g>
       </svg>
     </div>
     <h1>KITCHEN QUEST</h1>
@@ -254,7 +254,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v0.8</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v0.9</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
