@@ -167,6 +167,13 @@
     background:rgba(20,60,54,0.3);color:var(--hp);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.08em;
     text-shadow:0 0 6px var(--hp-glow);box-shadow:0 0 10px rgba(47,191,154,0.15);}
   .reload-btn:active{transform:scale(.97);}
+  .sync-row{display:flex;gap:8px;margin:8px 0 0;}
+  .sync-btn{flex:1;padding:10px;border-radius:3px;font-size:11.5px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:transform .06s;}
+  .sync-btn:active{transform:scale(.96);}
+  .sync-btn.push{border:1px solid var(--warn);background:rgba(48,34,14,0.3);color:var(--warn);text-shadow:0 0 6px var(--warn-glow);}
+  .sync-btn.pull{border:1px solid var(--sys);background:rgba(20,44,78,0.3);color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
+  .sync-btn:disabled{opacity:.6;}
+  .sync-note{margin-top:6px;text-align:center;font-size:9.5px;color:#3a5a80;letter-spacing:.08em;}
   .copyright .ver{color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .foot b{color:var(--sys);font-weight:700;}
   .note{margin-top:14px;border:1px solid var(--line);border-radius:3px;padding:11px 13px;font-size:11px;
@@ -293,7 +300,12 @@
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.3</span> ── © 2026 muukun</div>
+  <div class="sync-row">
+    <button class="sync-btn push" id="ghPushBtn" onclick="pushToGitHub()">📤 GitHubへ保存</button>
+    <button class="sync-btn pull" id="ghPullBtn" onclick="pullFromGitHub(false)">📥 GitHubから読込</button>
+  </div>
+  <div class="sync-note">端末をまたいで在庫を一本化 ── <span onclick="clearGhToken()" style="text-decoration:underline;cursor:pointer;">トークン削除</span></div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.4</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -529,6 +541,99 @@
     try{ localStorage.setItem(OVERRIDE_KEY, JSON.stringify(overrides)); }catch(e){}
   }
   let overrides = loadOverrides();
+
+  // ===== GitHub同期（stock.json でデータ一本化）=====
+  // 設定：リポジトリと保存先パス（公開リポジトリ）
+  const GH_OWNER = "muukun86";
+  const GH_REPO = "kitchen-quest";
+  const GH_PATH = "stock.json";
+  const GH_TOKEN_KEY = "kitchenQuest_ghToken"; // トークンは各端末のlocalStorageのみ（ソースに焼かない）
+
+  function ghToken(){ return localStorage.getItem(GH_TOKEN_KEY) || ""; }
+  function setGhToken(t){ localStorage.setItem(GH_TOKEN_KEY, t); }
+
+  // 現在の全在庫データを1つのオブジェクトに束ねる
+  function bundleData(){
+    return { state, customItems, overrides, savedAt: new Date().toISOString() };
+  }
+  // 束ねたデータを各ストレージへ展開して反映
+  function applyBundle(b){
+    if(!b) return;
+    if(b.state){ state = b.state; saveState(state); }
+    if(b.customItems){ customItems = b.customItems; saveCustomItems(); }
+    if(b.overrides){ overrides = b.overrides; saveOverrides(); }
+  }
+
+  // GitHubから stock.json を読み込む（トークン不要・公開raw）
+  async function pullFromGitHub(silent){
+    try{
+      const url = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${GH_PATH}?t=${Date.now()}`;
+      const res = await fetch(url, {cache:"no-store"});
+      if(!res.ok){ if(!silent) alert("まだ保存データがありません（初回は📤で保存してください）"); return false; }
+      const b = await res.json();
+      applyBundle(b);
+      if(typeof render==="function") render();
+      if(!silent) alert("📥 GitHubから最新の在庫を読み込みました\n" + (b.savedAt? "保存日時: "+new Date(b.savedAt).toLocaleString('ja-JP') : ""));
+      return true;
+    }catch(e){ if(!silent) alert("読み込みに失敗しました: " + e.message); return false; }
+  }
+
+  // GitHubへ stock.json を保存（要トークン）
+  async function pushToGitHub(){
+    let token = ghToken();
+    if(!token){
+      token = prompt("GitHubトークンを入力してください（初回のみ・この端末に保存されます）\n※誰にも教えないでください");
+      if(!token) return;
+      setGhToken(token.trim());
+      token = token.trim();
+    }
+    const btn = document.getElementById("ghPushBtn");
+    if(btn){ btn.textContent = "⏳ 保存中..."; btn.disabled = true; }
+    try{
+      const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+      // 既存ファイルのsha取得（更新に必要）
+      let sha = null;
+      const getRes = await fetch(apiUrl + "?t=" + Date.now(), {
+        headers: { "Authorization": "token " + token, "Accept": "application/vnd.github+json" }
+      });
+      if(getRes.ok){ const info = await getRes.json(); sha = info.sha; }
+      else if(getRes.status === 401){ throw new Error("トークンが無効です。設定し直してください。"); }
+      // 内容をBase64化（UTF-8対応）
+      const json = JSON.stringify(bundleData(), null, 2);
+      const b64 = btoa(unescape(encodeURIComponent(json)));
+      const body = {
+        message: "Update stock.json via app " + new Date().toISOString(),
+        content: b64,
+        branch: "main"
+      };
+      if(sha) body.sha = sha;
+      const putRes = await fetch(apiUrl, {
+        method: "PUT",
+        headers: { "Authorization": "token " + token, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if(!putRes.ok){
+        const err = await putRes.json().catch(()=>({}));
+        if(putRes.status === 401){ localStorage.removeItem(GH_TOKEN_KEY); throw new Error("トークンが無効です。もう一度お試しください（再入力を求めます）。"); }
+        throw new Error((err.message||("HTTP "+putRes.status)));
+      }
+      alert("📤 GitHubへ在庫を保存しました！\n他の端末は📥で読み込めます。");
+    }catch(e){
+      alert("保存に失敗しました: " + e.message);
+    }finally{
+      if(btn){ btn.textContent = "📤 GitHubへ保存"; btn.disabled = false; }
+    }
+  }
+  // トークンをこの端末から消す（共有端末対策）
+  function clearGhToken(){
+    if(confirm("この端末に保存したGitHubトークンを削除しますか？\n（保存機能が使えなくなります。読み込みは可能）")){
+      localStorage.removeItem(GH_TOKEN_KEY);
+      alert("トークンを削除しました");
+    }
+  }
+  window.pullFromGitHub = pullFromGitHub;
+  window.pushToGitHub = pushToGitHub;
+  window.clearGhToken = clearGhToken;
   // 元DATA品にoverrideをマージした実効mobを返す
   function effMob(cat, baseIndex, mob){
     const ov = overrides[cat+"::"+baseIndex];
