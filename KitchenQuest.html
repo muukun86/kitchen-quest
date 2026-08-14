@@ -293,7 +293,7 @@
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.2</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.3</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -806,9 +806,15 @@
   function countBuyList(){
     let n = 0;
     CATS.forEach(cat=>{
-      const full = [...DATA[cat], ...(customItems[cat]||[])];
-      full.forEach((mob,i)=>{
+      const base = DATA[cat] || [];
+      base.forEach((m,i)=>{
+        const mob = effMob(cat,i,m);
+        if(mob.hidden) return;
         if(getQty(cat,i,mob) <= warnOf(mob)) n++;
+      });
+      (customItems[cat]||[]).forEach((mob,j)=>{
+        if(mob.hidden) return;
+        if(getQty(cat, base.length+j, mob) <= warnOf(mob)) n++;
       });
     });
     return n;
@@ -830,8 +836,16 @@
       statusWrap.style.display = "none";
       const items = [];
       CATS.forEach(cat=>{
-        DATA[cat].forEach((mob,i)=>{
+        const base = DATA[cat] || [];
+        base.forEach((m,i)=>{
+          const mob = effMob(cat,i,m);
+          if(mob.hidden) return;
           const q = getQty(cat,i,mob);
+          if(q <= warnOf(mob)) items.push({cat,mob,q});
+        });
+        (customItems[cat]||[]).forEach((mob,j)=>{
+          if(mob.hidden) return;
+          const q = getQty(cat, base.length+j, mob);
           if(q <= warnOf(mob)) items.push({cat,mob,q});
         });
       });
