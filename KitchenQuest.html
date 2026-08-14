@@ -194,6 +194,10 @@
   .form-group input,.form-group select{background:rgba(8,16,28,0.7);border:1px solid var(--line);border-radius:3px;padding:8px 10px;color:var(--ink);font-family:inherit;font-size:13px;}
   .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--sys);box-shadow:0 0 12px rgba(56,138,221,0.35);}
   .form-actions{display:flex;gap:8px;margin-top:12px;}
+  .meal-toggle{display:flex;gap:6px;}
+  .meal-opt{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border:1px solid var(--line);border-radius:3px;font-size:12px;color:var(--sub);cursor:pointer;background:rgba(8,16,28,0.5);}
+  .meal-opt input{accent-color:var(--sys);}
+  .meal-opt:has(input:checked){color:var(--sys);border-color:var(--sys);background:rgba(56,138,221,0.2);}
   .form-actions button{flex:1;padding:10px;border-radius:3px;border:1px solid var(--line);font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;letter-spacing:.05em;}
   .form-actions .btn-ok{background:rgba(56,138,221,0.25);color:var(--sys);border-color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .form-actions .btn-ok:active{transform:scale(.95);}
@@ -272,7 +276,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.5</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.6</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -312,6 +316,30 @@
         <div class="form-group">
           <label>警告ライン（この値以下で買い出し候補に表示）</label>
           <input type="number" id="itemWarn" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>MAX（満タン値）</label>
+          <input type="number" id="itemMax" value="10" min="1">
+        </div>
+        <div class="form-group">
+          <label>種目</label>
+          <select id="itemKind">
+            <option value="food" selected>🍚 食品</option>
+            <option value="emergency">🧯 防災食品</option>
+            <option value="consumable">🧻 消耗品</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>利用シーン（朝・昼・晩）</label>
+          <div class="meal-toggle" id="mealToggle">
+            <label class="meal-opt"><input type="checkbox" id="mealM" value="4">朝</label>
+            <label class="meal-opt"><input type="checkbox" id="mealD" value="2">昼</label>
+            <label class="meal-opt"><input type="checkbox" id="mealN" value="1">晩</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>備考</label>
+          <input type="text" id="itemMemo" placeholder="メモ（任意）">
         </div>
       </div>
       <div class="form-actions">
@@ -419,8 +447,8 @@
     Object.keys(DATA).forEach(cat=>{
       const base = DATA[cat] || [];
       const cust = (customItems[cat] || []);
-      const merged = [...base, ...cust];
-      merged.forEach((mob,i)=> out.push({cat, mob, i}));
+      base.forEach((mob,i)=> out.push({cat, mob: effMob(cat,i,mob), i}));
+      cust.forEach((mob,j)=> out.push({cat, mob, i: base.length + j}));
     });
     return out;
   }
@@ -474,6 +502,21 @@
   function saveCustomItems(){
     try{ localStorage.setItem("kitchenQuest_customItems", JSON.stringify(customItems)); }catch(e){}
   }
+
+  // 既存品(DATA)の変更差分。キー "カテゴリ::元index" → 上書きフィールド
+  const OVERRIDE_KEY = "kitchenQuest_overrides";
+  function loadOverrides(){
+    try{ const raw=localStorage.getItem(OVERRIDE_KEY); return raw?JSON.parse(raw):{}; }catch(e){ return {}; }
+  }
+  function saveOverrides(){
+    try{ localStorage.setItem(OVERRIDE_KEY, JSON.stringify(overrides)); }catch(e){}
+  }
+  let overrides = loadOverrides();
+  // 元DATA品にoverrideをマージした実効mobを返す
+  function effMob(cat, baseIndex, mob){
+    const ov = overrides[cat+"::"+baseIndex];
+    return ov ? Object.assign({}, mob, ov) : mob;
+  }
   
   let editTarget = null; // {cat, idx} 編集中の追加品目。nullなら新規登録モード
 
@@ -486,6 +529,16 @@
   function closeAddItemModal(){ document.getElementById("addItemModal").classList.remove("show"); }
   window.closeAddItemModal = closeAddItemModal;
 
+  function setMeal(v){
+    document.getElementById("mealM").checked = !!(v & 4);
+    document.getElementById("mealD").checked = !!(v & 2);
+    document.getElementById("mealN").checked = !!(v & 1);
+  }
+  function getMeal(){
+    return (document.getElementById("mealM").checked?4:0)
+         + (document.getElementById("mealD").checked?2:0)
+         + (document.getElementById("mealN").checked?1:0);
+  }
   function resetForm(){
     document.getElementById("itemName").value = "";
     document.getElementById("itemQty").value = 1;
@@ -493,49 +546,57 @@
     document.getElementById("itemCat").value = current in DATA ? current : "冷蔵庫";
     document.getElementById("itemTier").value = 2;
     document.getElementById("itemWarn").value = 0;
+    document.getElementById("itemMax").value = 10;
+    document.getElementById("itemKind").value = "food";
+    document.getElementById("itemMemo").value = "";
+    setMeal(0);
     document.getElementById("formHead").textContent = "＋ 新規登録";
     document.getElementById("submitBtn").textContent = "台所に追加";
   }
 
-  // 追加品目の一覧を描画（編集・削除ボタン付き）
+  // 全品目（既存＋追加）を一覧描画（編集・削除ボタン付き）
   function renderEditList(){
     const el = document.getElementById("editList");
     el.innerHTML = "";
-    const rows = [];
-    Object.keys(customItems).forEach(cat=>{
-      (customItems[cat]||[]).forEach((mob,idx)=> rows.push({cat, mob, idx}));
-    });
-    if(rows.length === 0){
-      el.innerHTML = `<div class="edit-empty">登録済みの追加品目はまだありません。<br>下のフォームから新規登録できます。</div>`;
-      return;
-    }
     const head = document.createElement("div");
     head.className = "edit-formhead";
-    head.textContent = "登録済みの追加品目";
+    head.textContent = "登録済みの品目（タップで編集）";
     el.appendChild(head);
-    rows.forEach(({cat,mob,idx})=>{
-      const r = document.createElement("div");
-      r.className = "edit-row";
-      r.innerHTML = `
-        <div class="edit-info">
-          <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
-          <span class="edit-nm">${mob.nm}</span>
-          <span class="edit-cat">${catAbbr(cat)}</span>
-        </div>
-        <div class="edit-acts">
-          <button class="edit-btn ed" data-cat="${cat}" data-idx="${idx}">✎</button>
-          <button class="edit-btn del" data-cat="${cat}" data-idx="${idx}">🗑</button>
-        </div>`;
-      el.appendChild(r);
+    Object.keys(DATA).forEach(cat=>{
+      // 既存品
+      (DATA[cat]||[]).forEach((m,idx)=>{
+        const mob = effMob(cat,idx,m);
+        el.appendChild(makeEditRow(cat, idx, mob, "base"));
+      });
+      // 追加品
+      (customItems[cat]||[]).forEach((mob,idx)=>{
+        el.appendChild(makeEditRow(cat, idx, mob, "custom"));
+      });
     });
+  }
+  function makeEditRow(cat, idx, mob, type){
+    const r = document.createElement("div");
+    r.className = "edit-row";
+    const delBtn = type==="custom" ? `<button class="edit-btn del" data-type="${type}" data-cat="${cat}" data-idx="${idx}">🗑</button>` : "";
+    r.innerHTML = `
+      <div class="edit-info">
+        <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
+        <span class="edit-nm">${mob.nm}</span>
+        <span class="edit-cat">${catAbbr(cat)}</span>
+      </div>
+      <div class="edit-acts">
+        <button class="edit-btn ed" data-type="${type}" data-cat="${cat}" data-idx="${idx}">✎</button>
+        ${delBtn}
+      </div>`;
+    return r;
   }
 
   // 編集ボタン→フォームに読み込み / 削除ボタン→除去
   document.getElementById("editList").addEventListener("click", e=>{
     const btn = e.target.closest(".edit-btn");
     if(!btn) return;
-    const cat = btn.dataset.cat, idx = +btn.dataset.idx;
-    const mob = (customItems[cat]||[])[idx];
+    const type = btn.dataset.type, cat = btn.dataset.cat, idx = +btn.dataset.idx;
+    const mob = type==="base" ? effMob(cat,idx,DATA[cat][idx]) : (customItems[cat]||[])[idx];
     if(!mob) return;
     if(btn.classList.contains("del")){
       if(confirm(`「${mob.nm}」を削除しますか？`)){
@@ -547,13 +608,17 @@
       }
     } else {
       // 編集モードへ：フォームに値を読み込む
-      editTarget = {cat, idx};
+      editTarget = {type, cat, idx};
       document.getElementById("itemName").value = mob.nm || "";
       document.getElementById("itemQty").value = (typeof mob.qty==="number") ? mob.qty : 1;
       document.getElementById("itemUnit").value = mob.unit || "";
       document.getElementById("itemCat").value = cat;
       document.getElementById("itemTier").value = mob.tier || 2;
       document.getElementById("itemWarn").value = mob.warn || 0;
+      document.getElementById("itemMax").value = (typeof mob.max==="number"&&mob.max>0)?mob.max:(mob.unit==="%"?100:10);
+      document.getElementById("itemKind").value = mob.kind || "food";
+      document.getElementById("itemMemo").value = mob.memo || "";
+      setMeal(mob.meal || 0);
       document.getElementById("formHead").textContent = `✎ 編集中：${mob.nm}`;
       document.getElementById("submitBtn").textContent = "更新する";
       document.getElementById("addItemModal").scrollTop = 99999;
@@ -567,17 +632,29 @@
     const cat = document.getElementById("itemCat").value;
     const tier = +document.getElementById("itemTier").value || 2;
     const warn = +document.getElementById("itemWarn").value || 0;
+    const max = +document.getElementById("itemMax").value || (unit==="%"?100:10);
+    const kind = document.getElementById("itemKind").value;
+    const meal = getMeal();
+    const memo = document.getElementById("itemMemo").value.trim();
 
     if(!nm){ alert("品名を入力してください"); return; }
 
-    if(editTarget){
-      // 既存の追加品目を更新
+    const fields = {nm, qty, unit, tier, warn, max, kind, meal, memo};
+
+    if(editTarget && editTarget.type === "base"){
+      // 既存品：overrideに差分保存（元DATAは書き換えない）
+      overrides[cat+"::"+editTarget.idx] = fields;
+      saveOverrides();
+      editTarget = null;
+      resetForm(); renderEditList(); render();
+      alert("✅ " + nm + " を更新しました");
+    } else if(editTarget && editTarget.type === "custom"){
+      // 追加品の更新
       const src = customItems[editTarget.cat][editTarget.idx];
-      const updated = {ic: src.ic || "📦", nm, nt:"", qty, unit, pri:"low", tier, warn, max: (typeof src.max==="number"&&src.max>0)?src.max:(unit==="%"?100:10)};
+      const updated = Object.assign({ic: src.ic||"📦", nt:"", pri:"low"}, fields);
       if(editTarget.cat === cat){
         customItems[cat][editTarget.idx] = updated;
       } else {
-        // カテゴリ変更：元から除去して新カテゴリへ
         customItems[editTarget.cat].splice(editTarget.idx,1);
         if(customItems[editTarget.cat].length===0) delete customItems[editTarget.cat];
         if(!customItems[cat]) customItems[cat] = [];
@@ -585,19 +662,15 @@
       }
       saveCustomItems();
       editTarget = null;
-      resetForm();
-      renderEditList();
-      render();
+      resetForm(); renderEditList(); render();
       alert("✅ " + nm + " を更新しました");
     } else {
       // 新規登録
-      const newItem = {ic:"📦", nm, nt:"", qty, unit, pri:"low", tier, warn, max: unit==="%"?100:10};
+      const newItem = Object.assign({ic:"📦", nt:"", pri:"low"}, fields);
       if(!customItems[cat]) customItems[cat] = [];
       customItems[cat].push(newItem);
       saveCustomItems();
-      resetForm();
-      renderEditList();
-      render();
+      resetForm(); renderEditList(); render();
       alert("🎉 " + nm + " を台所に追加しました！");
     }
   }
@@ -672,7 +745,7 @@
   function renderRoster(){
     roster.innerHTML = "";
     // 場所モード時：currentカテゴリの品目リスト（標準+カスタム）
-    const baseList = DATA[current] || [];
+    const baseList = (DATA[current] || []).map((m,i)=> effMob(current,i,m));
     const customList = customItems[current] || [];
     currentList = [...baseList, ...customList];
     
@@ -816,8 +889,9 @@
   function entryFromEl(mobEl){
     const cat = mobEl.dataset.cat;
     const i = +mobEl.dataset.i;
-    const merged = [...(DATA[cat]||[]), ...((customItems[cat]||[]))];
-    return {cat, i, mob: merged[i]};
+    const base = DATA[cat]||[];
+    const mob = i < base.length ? effMob(cat,i,base[i]) : (customItems[cat]||[])[i-base.length];
+    return {cat, i, mob};
   }
 
   // ---- %スライダー：ドラッグ中は表示だけ更新、指を離したら保存＆再描画 ----
