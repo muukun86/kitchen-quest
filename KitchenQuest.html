@@ -288,7 +288,7 @@
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.9</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.0</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -968,6 +968,13 @@
     render();
   });
 
+  // 起動時はMANUALを必ず閉じた状態に
+  (function(){
+    const n = document.getElementById("footNote");
+    const t = document.getElementById("manualToggle");
+    if(n) n.style.display = "none";
+    if(t) t.textContent = "MANUAL ▾";
+  })();
   render();
 </script>
 </body>
