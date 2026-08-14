@@ -276,7 +276,7 @@
   </div>
 
   <div class="foot" id="footTag"></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v1.6</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v1.7</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -308,9 +308,9 @@
         <div class="form-group">
           <label>ランク</label>
           <select id="itemTier">
-            <option value="1">S ── 常駐（切らすと即困る）</option>
-            <option value="2" selected>A ── 常連（よく使う）</option>
-            <option value="9">G ── ゲスト（気分次第）</option>
+            <option value="1">S（切らすと即困る）</option>
+            <option value="2" selected>A（よく使う）</option>
+            <option value="9">G（気分次第）</option>
           </select>
         </div>
         <div class="form-group">
@@ -430,16 +430,16 @@
     ],
   };
 
-  const tierJP = {1:"常駐", 2:"常連", 3:"ゲスト"};
+  const tierJP = {1:"スペシャル", 2:"エース", 9:"ゲスト"};
   // ランク定義: tier番号 → {文字, ラベル, CSS色クラス}
   // 将来ABCを間に足すときは 3:{mark:"B",...}, 4:{mark:"C",...} を追記するだけ。
   // ゲストは末尾固定(tier=9)。ソートはtier番号順なので S→A→…→G が自然に保たれる。
   const RANKS = {
-    1: {mark:"S", jp:"常駐",   cls:"rS"},   // 青
-    2: {mark:"A", jp:"常連",   cls:"rA"},   // 緑
-    9: {mark:"G", jp:"ゲスト", cls:"rG"},   // 橙
+    1: {mark:"S", jp:"スペシャル", cls:"rS"},   // 青
+    2: {mark:"A", jp:"エース",     cls:"rA"},   // 緑
+    9: {mark:"G", jp:"ゲスト",     cls:"rG"},   // 橙
   };
-  const RANK_FALLBACK = {mark:"A", jp:"常連", cls:"rA"};
+  const RANK_FALLBACK = {mark:"A", jp:"エース", cls:"rA"};
   function rankOf(mob){ return RANKS[mob && mob.tier] || RANK_FALLBACK; }
   // 全カテゴリの品目を {cat, mob, i}（i=そのカテゴリ内index）で列挙。カスタム品も含む。
   function allEntries(){
@@ -706,7 +706,7 @@
         const t = document.createElement("div");
         t.className = "tab" + (current!==BUY_TAB && currentRank===rk ? " active" : "");
         const count = allEntries().filter(e=>(e.mob.tier|| 2)===rk).length;
-        t.innerHTML = `<span class="rankmark ${r.cls}">${r.mark}</span>${r.jp}<span class="n">${count}</span>`;
+        t.innerHTML = `<span class="rankmark ${r.cls}">${r.mark}</span><span class="n">${count}</span>`;
         t.onclick = ()=>{ current = "__RANK__"; currentRank = rk; render(); };
         tabsEl.appendChild(t);
       });
@@ -786,9 +786,9 @@
           roster.appendChild(el);
         });
       }
-      renderGroup("🔴 常駐（切らすと即困る・主力）", g1, "must");
-      renderGroup("🟠 常連（よく使う・そこそこ急ぎ）", g2, "");
-      renderGroup("🟡 ゲスト（気分次第・お気に入り枠）", g3, "mood");
+      renderGroup("🔴 S ── 最優先", g1, "must");
+      renderGroup("🟠 A ── 通常", g2, "");
+      renderGroup("🟡 G ── お気に入り枠", g3, "mood");
       return;
     }
 
@@ -931,7 +931,7 @@
       footLabel = "在庫が薄いものを自動で炙り出す、警戒リスト";
     } else if(viewMode==="rank"){
       const r = RANKS[currentRank] || RANK_FALLBACK;
-      footLabel = `${r.mark} ${r.jp} ── 全エリア横断`;
+      footLabel = `${r.mark} ── 全エリア横断`;
     } else if(viewMode==="all"){
       footLabel = `全品目 ── 台所のすべて`;
     } else {
