@@ -67,7 +67,8 @@
       "max": 1,
       "kind": "food",
       "meal": 0,
-      "memo": ""
+      "memo": "",
+      "hidden": true
     },
     "その他::0": {
       "hidden": true
@@ -82,5 +83,5 @@
       "hidden": true
     }
   },
-  "savedAt": "2026-08-15T06:02:49.892Z"
+  "savedAt": "2026-08-15T06:04:39.583Z"
 }
