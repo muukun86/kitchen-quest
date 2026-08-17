@@ -242,6 +242,24 @@
   .catloc{font-size:10px;color:var(--sub);margin-top:2px;letter-spacing:.05em;}
   .mob.warn-stock .catloc{color:#c99a5a;}
   .mob.low-stock .catloc{color:#a35a54;}
+  /* v2.5 sticky header */
+  .stickytop{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -14px;padding:6px 14px 8px;border-bottom:1px solid var(--line);box-shadow:0 6px 14px -8px rgba(0,0,0,0.85);}
+  .hdr-sync{display:flex;gap:8px;margin-bottom:8px;}
+  .hdr-btn{flex:1;padding:7px;border-radius:3px;font-size:12px;font-weight:800;letter-spacing:.16em;cursor:pointer;background:rgba(8,16,28,0.6);font-family:"Segoe UI",system-ui,sans-serif;}
+  .hdr-btn.read{border:1.5px solid var(--warn);color:var(--warn);text-shadow:0 0 6px var(--warn-glow);}
+  .hdr-btn.write{border:1.5px solid var(--sys);color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
+  .hdr-btn:active{transform:scale(.96);}
+  /* v2.5 row edit button */
+  .mob-edit{flex:none;width:30px;height:30px;border-radius:4px;border:1px solid var(--line);background:rgba(8,16,28,0.7);color:var(--sys);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;z-index:2;}
+  .mob-edit:active{transform:scale(.9);}
+  .mob .slain{right:52px;}
+  /* v2.5 footer buttons */
+  .footer-btns{display:flex;gap:10px;margin:16px 0 4px;}
+  .foot-btn{flex:1;padding:11px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer;}
+  .foot-btn.new{border:1px solid var(--sys);background:rgba(20,44,78,0.4);color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
+  .foot-btn.arch{border:1px solid var(--warn);background:rgba(48,34,14,0.3);color:var(--warn);text-shadow:0 0 6px var(--warn-glow);}
+  .foot-btn:active{transform:scale(.98);}
+  .btn-del{border:1px solid var(--danger)!important;color:var(--danger)!important;background:rgba(40,14,12,0.4)!important;}
 </style>
 </head>
 <body>
@@ -268,6 +286,11 @@
     <h1>KITCHEN QUEST</h1>
   </div>
 
+  <div class="stickytop">
+  <div class="hdr-sync">
+    <button class="hdr-btn read" id="ghPullBtn" onclick="pullFromGitHub(false)">READ</button>
+    <button class="hdr-btn write" id="ghPushBtn" onclick="pushToGitHub()">WRITE</button>
+  </div>
   <div class="modebar">
     <div class="modetoggle" id="modeToggle">
       <div class="modeopt active" data-mode="all">▤ ALL</div>
@@ -276,8 +299,9 @@
     </div>
   </div>
 
-  <div style="margin:10px 0;">
+  <div style="margin:8px 0 0;">
     <div class="tabs" id="tabs"></div>
+  </div>
   </div>
 
   <div id="statusWrap" class="status">
@@ -289,7 +313,10 @@
 
   <div class="roster" id="roster"></div>
 
-  <button class="btn-add-item" id="btnAddItem">⚙ EDIT MODE</button>
+  <div class="footer-btns">
+    <button class="foot-btn new" onclick="openNewItem()">＋ NEW ITEM</button>
+    <button class="foot-btn arch" onclick="openArchive()">🗄 ARCHIVE</button>
+  </div>
 
   <button class="manual-toggle" id="manualToggle" onclick="toggleManual()">MANUAL ▾</button>
   <div class="note" id="footNote" style="display:none;">
@@ -300,19 +327,14 @@
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="sync-row">
-    <button class="sync-btn push" id="ghPushBtn" onclick="pushToGitHub()">📤 GitHubへ保存</button>
-    <button class="sync-btn pull" id="ghPullBtn" onclick="pullFromGitHub(false)">📥 GitHubから読込</button>
-  </div>
   <div class="sync-note">端末をまたいで在庫を一本化 ── <span onclick="clearGhToken()" style="text-decoration:underline;cursor:pointer;">トークン削除</span></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.4</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.5</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
-      <div class="modal-title">⚙ EDIT MODE</div>
-      <div id="editList" class="edit-list"></div>
-      <div class="edit-formhead" id="formHead">＋ NEW ITEM</div>
-      <div class="modal-form">
+      <div class="modal-title" id="modalTitle">＋ NEW ITEM</div>
+      <div id="editList" class="edit-list" style="display:none;"></div>
+      <div class="modal-form" id="modalForm">
         <div class="form-group">
           <label>品名</label>
           <input type="text" id="itemName" placeholder="新しい品目">
@@ -351,6 +373,10 @@
           <input type="number" id="itemMax" value="10" min="1">
         </div>
         <div class="form-group">
+          <label>優先度（1〜99・小さいほど上に表示）</label>
+          <input type="number" id="itemPrio" value="50" min="1" max="99">
+        </div>
+        <div class="form-group">
           <label>種目</label>
           <select id="itemKind">
             <option value="food" selected>🍚 食品</option>
@@ -371,8 +397,9 @@
           <input type="text" id="itemMemo" placeholder="メモ（任意）">
         </div>
       </div>
-      <div class="form-actions">
-        <button class="btn-cancel" onclick="closeAddItemModal()">CANCEL</button>
+      <div class="form-actions" id="formActions">
+        <button class="btn-cancel" onclick="closeAddItemModal()">CLOSE</button>
+        <button class="btn-del" id="delBtn" onclick="deleteCurrent()" style="display:none;">削除</button>
         <button class="btn-ok" id="submitBtn" onclick="submitNewItem()">ADD</button>
       </div>
     </div>
@@ -504,6 +531,13 @@
     if(q <= Math.max(1, w/4)) return "low";   // 危険＝赤（warnの1/4以下）
     return "warn";                             // 警戒＝オレンジ
   }
+  // v2.5 優先度(1-99・小さいほど上)。未設定は pri(high/mid/low) から推定
+  const PRIO_MAP = {high:20, mid:50, low:80};
+  function prioNum(mob){ return (typeof mob.prio==="number") ? mob.prio : (PRIO_MAP[mob.pri]||50); }
+  // v2.5 危険度ランク(F/G/L/E表示に一致): E=0(上) L=1 G=2 F=3(下)
+  function statusRank(cat,i,mob){ const q=getQty(cat,i,mob); const w=warnOf(mob); if(q<=0) return 0; if(q<=w) return 1; if(q<=w*2) return 2; return 3; }
+  // v2.5 ランク内の並び: 優先度昇順 -> 危険順 -> 名前
+  function cmpWithin(a,b){ const pa=prioNum(a.mob), pb=prioNum(b.mob); if(pa!==pb) return pa-pb; const sa=statusRank(a.cat,a.i,a.mob), sb=statusRank(b.cat,b.i,b.mob); if(sa!==sb) return sa-sb; return (a.mob.nm||"").localeCompare(b.mob.nm||"","ja"); }
   let current = "__ALL__";
 
   const STORE_KEY = "kitchenQuest_v2_state";
@@ -642,14 +676,51 @@
   
   let editTarget = null; // {cat, idx} 編集中の追加品目。nullなら新規登録モード
 
-  function openAddItemModal(){
+  function showFormMode(){
+    document.getElementById("editList").style.display = "none";
+    document.getElementById("modalForm").style.display = "";
+    document.getElementById("formActions").style.display = "flex";
+    document.getElementById("submitBtn").style.display = "";
+  }
+  function openNewItem(){
     editTarget = null;
     resetForm();
-    renderEditList();
+    showFormMode();
+    document.getElementById("modalTitle").textContent = "＋ NEW ITEM";
+    document.getElementById("delBtn").style.display = "none";
+    document.getElementById("submitBtn").textContent = "ADD";
+    document.getElementById("addItemModal").classList.add("show");
+  }
+  function openEditItem(cat, i){
+    const base = DATA[cat] || [];
+    let type, idx, mob;
+    if(i < base.length){ type="base"; idx=i; mob=effMob(cat,i,base[i]); }
+    else { type="custom"; idx=i-base.length; mob=(customItems[cat]||[])[idx]; }
+    if(!mob) return;
+    editTarget = {type, cat, idx};
+    populateForm(cat, mob);
+    showFormMode();
+    document.getElementById("modalTitle").textContent = "✎ EDIT";
+    document.getElementById("delBtn").style.display = "block";
+    document.getElementById("submitBtn").textContent = "UPDATE";
+    document.getElementById("addItemModal").classList.add("show");
+    document.getElementById("addItemModal").scrollTop = 0;
+  }
+  function openArchive(){
+    document.getElementById("modalForm").style.display = "none";
+    document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("delBtn").style.display = "none";
+    document.getElementById("editList").style.display = "block";
+    document.getElementById("formActions").style.display = "flex";
+    document.getElementById("modalTitle").textContent = "🗄 ARCHIVE";
+    renderArchiveList();
     document.getElementById("addItemModal").classList.add("show");
   }
   function closeAddItemModal(){ document.getElementById("addItemModal").classList.remove("show"); }
   window.closeAddItemModal = closeAddItemModal;
+  window.openNewItem = openNewItem;
+  window.openEditItem = openEditItem;
+  window.openArchive = openArchive;
   function toggleManual(){
     const n = document.getElementById("footNote");
     const t = document.getElementById("manualToggle");
@@ -677,135 +748,114 @@
     document.getElementById("itemTier").value = 2;
     document.getElementById("itemWarn").value = 0;
     document.getElementById("itemMax").value = 10;
+    document.getElementById("itemPrio").value = 50;
     document.getElementById("itemKind").value = "food";
     document.getElementById("itemMemo").value = "";
     setMeal(0);
-    document.getElementById("formHead").textContent = "＋ NEW ITEM";
-    document.getElementById("submitBtn").textContent = "ADD";
+  }
+  function populateForm(cat, mob){
+    document.getElementById("itemName").value = mob.nm || "";
+    document.getElementById("itemQty").value = (typeof mob.qty==="number") ? mob.qty : 1;
+    document.getElementById("itemUnit").value = mob.unit || "";
+    document.getElementById("itemCat").value = cat;
+    document.getElementById("itemTier").value = mob.tier || 2;
+    document.getElementById("itemWarn").value = mob.warn || 0;
+    document.getElementById("itemMax").value = (typeof mob.max==="number"&&mob.max>0)?mob.max:(mob.unit==="%"?100:10);
+    document.getElementById("itemPrio").value = prioNum(mob);
+    document.getElementById("itemKind").value = mob.kind || "food";
+    document.getElementById("itemMemo").value = mob.memo || "";
+    setMeal(mob.meal || 0);
   }
 
-  // 全品目（既存＋追加）を一覧描画（編集・削除ボタン付き）
-  function renderEditList(){
+  // v2.5 ARCHIVE一覧（非表示品目のみ・復元/完全削除）
+  function renderArchiveList(){
     const el = document.getElementById("editList");
     el.innerHTML = "";
-    const head = document.createElement("div");
-    head.className = "edit-formhead";
-    head.textContent = "ITEMS ── タップで編集";
-    el.appendChild(head);
     const archived = [];
     Object.keys(DATA).forEach(cat=>{
-      (DATA[cat]||[]).forEach((m,idx)=>{
-        const mob = effMob(cat,idx,m);
-        if(mob.hidden){ archived.push({cat, idx, mob, type:"base"}); return; }
-        el.appendChild(makeEditRow(cat, idx, mob, "base"));
-      });
-      (customItems[cat]||[]).forEach((mob,idx)=>{
-        if(mob.hidden){ archived.push({cat, idx, mob, type:"custom"}); return; }
-        el.appendChild(makeEditRow(cat, idx, mob, "custom"));
-      });
+      (DATA[cat]||[]).forEach((m,idx)=>{ const mob=effMob(cat,idx,m); if(mob.hidden) archived.push({cat,idx,mob,type:"base"}); });
     });
-    // ARCHIVE（非表示品目・復元可能）
-    if(archived.length){
-      const ah = document.createElement("div");
-      ah.className = "edit-formhead archive";
-      ah.textContent = `🗄 ARCHIVE（${archived.length}）── 復元/完全削除`;
-      el.appendChild(ah);
-      archived.forEach(({cat,idx,mob,type})=>{
-        const r = document.createElement("div");
-        r.className = "edit-row archived";
-        r.innerHTML = `
-          <div class="edit-info">
-            <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
-            <span class="edit-nm">${mob.nm}</span>
-            <span class="edit-cat">${catAbbr(cat)}</span>
-          </div>
-          <div class="edit-acts">
-            <button class="edit-btn restore" data-type="${type}" data-cat="${cat}" data-idx="${idx}">↩</button>
-            <button class="edit-btn purge" data-type="${type}" data-cat="${cat}" data-idx="${idx}">✕</button>
-          </div>`;
-        el.appendChild(r);
-      });
+    Object.keys(customItems).forEach(cat=>{
+      (customItems[cat]||[]).forEach((mob,idx)=>{ if(mob.hidden) archived.push({cat,idx,mob,type:"custom"}); });
+    });
+    if(!archived.length){
+      el.innerHTML = `<div class="edit-empty">アーカイブは空です。<br>各品の ✎ →「削除」で非表示にした品目がここに入ります（いつでも復元可能）。</div>`;
+      return;
     }
+    const ah = document.createElement("div");
+    ah.className = "edit-formhead archive";
+    ah.textContent = `ARCHIVED（${archived.length}）── 復元 / 完全削除`;
+    el.appendChild(ah);
+    archived.forEach(({cat,idx,mob,type})=>{
+      const r = document.createElement("div");
+      r.className = "edit-row archived";
+      r.innerHTML = `
+        <div class="edit-info">
+          <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
+          <span class="edit-nm">${mob.nm}</span>
+          <span class="edit-cat">${catAbbr(cat)}</span>
+        </div>
+        <div class="edit-acts">
+          <button class="edit-btn restore" data-type="${type}" data-cat="${cat}" data-idx="${idx}">↩</button>
+          <button class="edit-btn purge" data-type="${type}" data-cat="${cat}" data-idx="${idx}">✕</button>
+        </div>`;
+      el.appendChild(r);
+    });
   }
-  function makeEditRow(cat, idx, mob, type){
-    const r = document.createElement("div");
-    r.className = "edit-row";
-    r.innerHTML = `
-      <div class="edit-info">
-        <span class="tierbadge ${rankOf(mob).cls}">${rankOf(mob).mark}</span>
-        <span class="edit-nm">${mob.nm}</span>
-        <span class="edit-cat">${catAbbr(cat)}</span>
-      </div>
-      <div class="edit-acts">
-        <button class="edit-btn ed" data-type="${type}" data-cat="${cat}" data-idx="${idx}">✎</button>
-        <button class="edit-btn del" data-type="${type}" data-cat="${cat}" data-idx="${idx}">🗑</button>
-      </div>`;
-    return r;
+  // v2.5 ✎編集画面からの削除（アーカイブ行き）
+  function deleteCurrent(){
+    if(!editTarget) return;
+    const {type, cat, idx} = editTarget;
+    const mob = type==="base" ? effMob(cat,idx,DATA[cat][idx]) : (customItems[cat]||[])[idx];
+    const nm = (mob&&mob.nm)||"";
+    if(!confirm(`\u300c${nm}\u300d\u3092\u30a2\u30fc\u30ab\u30a4\u30d6\uff08\u975e\u8868\u793a\uff09\u306b\u3057\u307e\u3059\u304b\uff1f\n\u203b\u30d5\u30c3\u30bf\u30fc\u306e ARCHIVE \u304b\u3089\u3044\u3064\u3067\u3082\u5fa9\u5143\u3067\u304d\u307e\u3059`)) return;
+    if(type==="base"){
+      const k = cat+"::"+idx;
+      overrides[k] = Object.assign({}, overrides[k], {hidden:true});
+      saveOverrides();
+    } else {
+      customItems[cat][idx].hidden = true;
+      saveCustomItems();
+    }
+    editTarget = null;
+    closeAddItemModal();
+    render();
   }
-
-  // 編集ボタン→フォームに読み込み / 削除ボタン→除去
+  window.deleteCurrent = deleteCurrent;
+  // ARCHIVE一覧：復元 / 完全削除
   document.getElementById("editList").addEventListener("click", e=>{
     const btn = e.target.closest(".edit-btn");
     if(!btn) return;
     const type = btn.dataset.type, cat = btn.dataset.cat, idx = +btn.dataset.idx;
-    const mob = type==="base" ? effMob(cat,idx,DATA[cat][idx]) : (customItems[cat]||[])[idx];
-    if(!mob) return;
     if(btn.classList.contains("restore")){
-      // アーカイブから復元
       if(type==="base"){
         const k = cat+"::"+idx;
         if(overrides[k]){ delete overrides[k].hidden; if(Object.keys(overrides[k]).length===0) delete overrides[k]; saveOverrides(); }
       } else {
         if(customItems[cat] && customItems[cat][idx]){ delete customItems[cat][idx].hidden; saveCustomItems(); }
       }
-      renderEditList(); render();
+      renderArchiveList(); render();
       return;
     }
     if(btn.classList.contains("purge")){
-      // 完全削除（customのみ実体削除。baseはhidden維持のまま＝コード上消せないので警告）
+      const mob = type==="base" ? effMob(cat,idx,DATA[cat][idx]) : (customItems[cat]||[])[idx];
+      const nm = (mob&&mob.nm)||"";
       if(type==="custom"){
-        if(confirm(`「${mob.nm}」を完全に削除しますか？\n※この操作は取り消せません`)){
+        if(confirm(`\u300c${nm}\u300d\u3092\u5b8c\u5168\u306b\u524a\u9664\u3057\u307e\u3059\u304b\uff1f\n\u203b\u3053\u306e\u64cd\u4f5c\u306f\u53d6\u308a\u6d88\u305b\u307e\u305b\u3093`)){
           customItems[cat].splice(idx,1);
           if(customItems[cat].length===0) delete customItems[cat];
           saveCustomItems();
-          renderEditList(); render();
+          renderArchiveList(); render();
         }
       } else {
-        alert("元からある品目はアーカイブ（非表示）までです。\n完全削除はできません（いつでも復元可能）。");
+        alert("\u5143\u304b\u3089\u3042\u308b\u54c1\u76ee\u306f\u30a2\u30fc\u30ab\u30a4\u30d6\uff08\u975e\u8868\u793a\uff09\u307e\u3067\u3067\u3059\u3002\n\u5b8c\u5168\u524a\u9664\u306f\u3067\u304d\u307e\u305b\u3093\uff08\u3044\u3064\u3067\u3082\u5fa9\u5143\u53ef\u80fd\uff09\u3002");
       }
       return;
     }
-    if(btn.classList.contains("del")){
-      if(confirm(`「${mob.nm}」をアーカイブ（非表示）にしますか？\n※EDIT MODE下部の ARCHIVE からいつでも復元できます`)){
-        if(type==="base"){
-          const k = cat+"::"+idx;
-          overrides[k] = Object.assign({}, overrides[k], {hidden:true});
-          saveOverrides();
-        } else {
-          customItems[cat][idx].hidden = true;
-          saveCustomItems();
-        }
-        renderEditList();
-        render();
-      }
-    } else {
-      // 編集モードへ：フォームに値を読み込む
-      editTarget = {type, cat, idx};
-      document.getElementById("itemName").value = mob.nm || "";
-      document.getElementById("itemQty").value = (typeof mob.qty==="number") ? mob.qty : 1;
-      document.getElementById("itemUnit").value = mob.unit || "";
-      document.getElementById("itemCat").value = cat;
-      document.getElementById("itemTier").value = mob.tier || 2;
-      document.getElementById("itemWarn").value = mob.warn || 0;
-      document.getElementById("itemMax").value = (typeof mob.max==="number"&&mob.max>0)?mob.max:(mob.unit==="%"?100:10);
-      document.getElementById("itemKind").value = mob.kind || "food";
-      document.getElementById("itemMemo").value = mob.memo || "";
-      setMeal(mob.meal || 0);
-      document.getElementById("formHead").textContent = `✎ EDIT：${mob.nm}`;
-      document.getElementById("submitBtn").textContent = "UPDATE";
-      document.getElementById("addItemModal").scrollTop = 99999;
-    }
   });
+
+
+
 
   function submitNewItem(){
     const nm = document.getElementById("itemName").value.trim();
@@ -815,20 +865,21 @@
     const tier = +document.getElementById("itemTier").value || 2;
     const warn = +document.getElementById("itemWarn").value || 0;
     const max = +document.getElementById("itemMax").value || (unit==="%"?100:10);
+    const prio = Math.min(99, Math.max(1, +document.getElementById("itemPrio").value || 50));
     const kind = document.getElementById("itemKind").value;
     const meal = getMeal();
     const memo = document.getElementById("itemMemo").value.trim();
 
     if(!nm){ alert("品名を入力してください"); return; }
 
-    const fields = {nm, qty, unit, tier, warn, max, kind, meal, memo};
+    const fields = {nm, qty, unit, tier, warn, max, prio, kind, meal, memo};
 
     if(editTarget && editTarget.type === "base"){
       // 既存品：overrideに差分保存（元DATAは書き換えない）
       overrides[cat+"::"+editTarget.idx] = fields;
       saveOverrides();
       editTarget = null;
-      resetForm(); renderEditList(); render();
+      closeAddItemModal(); render();
       alert("✅ UPDATED：" + nm);
     } else if(editTarget && editTarget.type === "custom"){
       // 追加品の更新
@@ -844,7 +895,7 @@
       }
       saveCustomItems();
       editTarget = null;
-      resetForm(); renderEditList(); render();
+      closeAddItemModal(); render();
       alert("✅ UPDATED：" + nm);
     } else {
       // 新規登録
@@ -852,7 +903,7 @@
       if(!customItems[cat]) customItems[cat] = [];
       customItems[cat].push(newItem);
       saveCustomItems();
-      resetForm(); renderEditList(); render();
+      closeAddItemModal(); render();
       alert("🎉 ADDED：" + nm);
     }
   }
@@ -993,33 +1044,26 @@
     let entries;
     let showCatLabel = false;
     if(viewMode === "rank"){
-      // ランクモード：全場所から選択中ランクの品目を集約
+      // ランクモード：選択ランクのみ。優先度→危険→名前
       entries = allEntries().filter(e => (e.mob.tier || 2) === currentRank);
-      showCatLabel = true; // 各行に現在地を表示
-      // 並び：場所→元index の順で安定させる
-      const catOrder = {}; CATS.forEach((c,idx)=> catOrder[c]=idx);
-      entries.sort((a,b)=>{
-        if(catOrder[a.cat] !== catOrder[b.cat]) return catOrder[a.cat] - catOrder[b.cat];
-        return a.i - b.i;
-      });
+      showCatLabel = true;
+      entries.sort(cmpWithin);
     } else if(viewMode === "all"){
-      // ALLモード：全品目を場所順→tier順で
+      // ALLモード：ランク先頭(S→A→G) → 各ランク内は 優先度→危険→名前
       entries = allEntries();
       showCatLabel = true;
-      const catOrder = {}; CATS.forEach((c,idx)=> catOrder[c]=idx);
       entries.sort((a,b)=>{
-        if(catOrder[a.cat] !== catOrder[b.cat]) return catOrder[a.cat] - catOrder[b.cat];
         const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
         if(ta !== tb) return ta - tb;
-        return a.i - b.i;
+        return cmpWithin(a,b);
       });
     } else {
-      // 場所モード：現在カテゴリの品目を tier順で（hidden除外、indexは保持）
+      // 場所モード：現カテゴリ。ランク先頭 → 優先度→危険→名前
       entries = currentList.map((mob,i)=>({cat:current, mob, i})).filter(e=>!e.mob.hidden);
       entries.sort((a,b)=>{
         const ta = a.mob.tier || 2, tb = b.mob.tier || 2;
         if(ta !== tb) return ta - tb;
-        return a.i - b.i;
+        return cmpWithin(a,b);
       });
     }
 
@@ -1046,7 +1090,8 @@
         <div class="step">
           <div class="qty"><span class="q">${q}</span><small>${isPct?"%":("/"+mx+" "+(mob.unit||""))}</small></div>
         </div>
-        <div class="slain">EMPTY</div>`;
+        <div class="slain">EMPTY</div>
+        <button class="mob-edit" title="編集">✎</button>`;
       roster.appendChild(el);
     });
     refreshStatus();
@@ -1114,13 +1159,19 @@
     setQty(cat, i, +s.value);
     render();
   });
+  roster.addEventListener("click", e=>{
+    const eb = e.target.closest(".mob-edit");
+    if(!eb) return;
+    const mobEl = eb.closest(".mob");
+    openEditItem(mobEl.dataset.cat, +mobEl.dataset.i);
+  });
 
   function render(){
     renderTabs();
     renderRoster();
   }
 
-  document.getElementById("btnAddItem").addEventListener("click", openAddItemModal);
+  // v2.5: EDIT MODEボタン廃止（✎ / NEW ITEM / ARCHIVE へ移行）
 
   // ---- 表示軸トグル ----
   document.getElementById("modeToggle").addEventListener("click", e=>{
