@@ -46,29 +46,13 @@
     "冷凍庫::3": 1,
     "パントリー::20": 100,
     "パントリー::7": 0,
-    "冷凍庫::11": 0,
+    "冷凍庫::11": 4,
     "パントリー::13": 90,
     "パントリー::18": 40,
     "その他::1": 10,
     "その他::2": 0
   },
   "customItems": {
-    "冷蔵庫": [
-      {
-        "ic": "📦",
-        "nt": "",
-        "pri": "low",
-        "nm": "鶏肉",
-        "qty": 1,
-        "unit": "g",
-        "tier": 2,
-        "warn": 0,
-        "max": 10,
-        "kind": "food",
-        "meal": 1,
-        "memo": "ビリヤニ用"
-      }
-    ],
     "その他": [
       {
         "ic": "📦",
@@ -78,8 +62,9 @@
         "qty": 1,
         "unit": "個",
         "tier": 1,
-        "warn": 10,
+        "warn": 1,
         "max": 10,
+        "prio": 80,
         "kind": "consumable",
         "meal": 0,
         "memo": ""
@@ -93,10 +78,28 @@
         "unit": "％",
         "tier": 1,
         "warn": 0,
-        "max": 100,
+        "max": 10,
+        "prio": 80,
         "kind": "food",
         "meal": 0,
         "memo": ""
+      }
+    ],
+    "冷凍庫": [
+      {
+        "ic": "📦",
+        "nt": "",
+        "pri": "low",
+        "nm": "鶏肉",
+        "qty": 1,
+        "unit": "g",
+        "tier": 2,
+        "warn": 0,
+        "max": 10,
+        "prio": 80,
+        "kind": "food",
+        "meal": 1,
+        "memo": "ビリヤニ用"
       }
     ]
   },
@@ -144,7 +147,235 @@
       "kind": "food",
       "meal": 0,
       "memo": ""
+    },
+    "冷凍庫::9": {
+      "nm": "ジョイフルハンバーグ",
+      "qty": 1,
+      "unit": "個",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::6": {
+      "nm": "レトルトミート具",
+      "qty": 2,
+      "unit": "個",
+      "tier": 9,
+      "warn": 0,
+      "max": 20,
+      "prio": 78,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "冷蔵庫::28": {
+      "nm": "炭酸水",
+      "qty": 1,
+      "unit": "本",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::21": {
+      "nm": "鯖缶",
+      "qty": 1,
+      "unit": "缶",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::12": {
+      "nm": "チョコドーナツ",
+      "qty": 8,
+      "unit": "個",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::3": {
+      "nm": "シーチキン（ツナ缶）",
+      "qty": 1,
+      "unit": "缶",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "冷蔵庫::13": {
+      "nm": "コーラ（500mL）",
+      "qty": 1,
+      "unit": "本",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::2": {
+      "nm": "カラムーチョ（小）",
+      "qty": 2,
+      "unit": "袋",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "冷凍庫::11": {
+      "nm": "豚ひき肉（生）",
+      "qty": 200,
+      "unit": "人分",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::8": {
+      "nm": "雑穀米",
+      "qty": 10,
+      "unit": "合分",
+      "tier": 2,
+      "warn": 4,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::7": {
+      "nm": "ビリヤニ（炊き込みの素）",
+      "qty": 1,
+      "unit": "袋",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 50,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "冷蔵庫::0": {
+      "nm": "豚みそ（鶴翔高校作）",
+      "qty": 4,
+      "unit": "食分",
+      "tier": 9,
+      "warn": 0,
+      "max": 10,
+      "prio": 50,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::5": {
+      "nm": "レトルトカレー",
+      "qty": 1,
+      "unit": "人前",
+      "tier": 2,
+      "warn": 0,
+      "max": 20,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::1": {
+      "nm": "ポテチ のりしお",
+      "qty": 1,
+      "unit": "袋",
+      "tier": 2,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::10": {
+      "nm": "トマト缶",
+      "qty": 1,
+      "unit": "缶",
+      "tier": 2,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::4": {
+      "nm": "ごはん（レトルト180g）",
+      "qty": 8,
+      "unit": "食",
+      "tier": 2,
+      "warn": 0,
+      "max": 20,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "パントリー::11": {
+      "nm": "かつお節",
+      "qty": 5,
+      "unit": "パック",
+      "tier": 2,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "冷蔵庫::15": {
+      "nm": "キャベツ",
+      "qty": 4,
+      "unit": "人前",
+      "tier": 1,
+      "warn": 0,
+      "max": 10,
+      "prio": 20,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
+    },
+    "冷蔵庫::12": {
+      "nm": "バナナ",
+      "qty": 5,
+      "unit": "本",
+      "tier": 1,
+      "warn": 0,
+      "max": 10,
+      "prio": 20,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
     }
   },
-  "savedAt": "2026-08-17T11:58:50.693Z"
+  "savedAt": "2026-08-17T13:08:52.816Z"
 }
