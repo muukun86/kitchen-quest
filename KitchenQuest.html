@@ -328,7 +328,7 @@
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
   <div class="sync-note">端末をまたいで在庫を一本化 ── <span onclick="clearGhToken()" style="text-decoration:underline;cursor:pointer;">トークン削除</span></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.5</span> ── © 2026 muukun</div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.6</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -773,7 +773,7 @@
     el.innerHTML = "";
     const archived = [];
     Object.keys(DATA).forEach(cat=>{
-      (DATA[cat]||[]).forEach((m,idx)=>{ const mob=effMob(cat,idx,m); if(mob.hidden) archived.push({cat,idx,mob,type:"base"}); });
+      (DATA[cat]||[]).forEach((m,idx)=>{ const mob=effMob(cat,idx,m); if(mob.hidden && !mob.moved) archived.push({cat,idx,mob,type:"base"}); });
     });
     Object.keys(customItems).forEach(cat=>{
       (customItems[cat]||[]).forEach((mob,idx)=>{ if(mob.hidden) archived.push({cat,idx,mob,type:"custom"}); });
@@ -875,9 +875,22 @@
     const fields = {nm, qty, unit, tier, warn, max, prio, kind, meal, memo};
 
     if(editTarget && editTarget.type === "base"){
-      // 既存品：overrideに差分保存（元DATAは書き換えない）
-      overrides[cat+"::"+editTarget.idx] = fields;
-      saveOverrides();
+      const srcKey = editTarget.cat+"::"+editTarget.idx;
+      if(editTarget.cat === cat){
+        // 同カテゴリ：overrideに差分保存（元DATAは書き換えない）
+        overrides[srcKey] = fields;
+        saveOverrides();
+      } else {
+        // AREA変更：元スロットを隠し、移動先へカスタム品として作り直す
+        const liveQty = (srcKey in state) ? state[srcKey] : fields.qty;
+        overrides[srcKey] = Object.assign({}, overrides[srcKey], {hidden:true, moved:true});
+        saveOverrides();
+        if(srcKey in state){ delete state[srcKey]; saveState(state); }
+        const moved = Object.assign({ic:"📦", nt:"", pri:"low"}, fields, {qty: liveQty});
+        if(!customItems[cat]) customItems[cat] = [];
+        customItems[cat].push(moved);
+        saveCustomItems();
+      }
       editTarget = null;
       closeAddItemModal(); render();
       alert("✅ UPDATED：" + nm);
