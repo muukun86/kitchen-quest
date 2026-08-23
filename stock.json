@@ -102,7 +102,7 @@
         "warn": 0,
         "max": 10,
         "prio": 40,
-        "kind": "food",
+        "kind": "consumable",
         "meal": 0,
         "memo": ""
       }
@@ -790,5 +790,5 @@
       "memo": ""
     }
   },
-  "savedAt": "2026-08-23T11:21:02.732Z"
+  "savedAt": "2026-08-23T11:21:56.648Z"
 }
