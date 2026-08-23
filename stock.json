@@ -459,7 +459,19 @@
       "kind": "consumable",
       "meal": 0,
       "memo": ""
+    },
+    "冷蔵庫::9": {
+      "nm": "焼きそば麺",
+      "qty": 1,
+      "unit": "人前",
+      "tier": 2,
+      "warn": 0,
+      "max": 10,
+      "prio": 50,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
     }
   },
-  "savedAt": "2026-08-23T11:11:37.679Z"
+  "savedAt": "2026-08-23T11:11:51.839Z"
 }
