@@ -331,7 +331,7 @@
       "warn": 0,
       "max": 20,
       "prio": 30,
-      "kind": "food",
+      "kind": "emergency",
       "meal": 0,
       "memo": ""
     },
@@ -814,5 +814,5 @@
       "memo": ""
     }
   },
-  "savedAt": "2026-08-23T11:28:52.901Z"
+  "savedAt": "2026-08-23T11:30:36.352Z"
 }
