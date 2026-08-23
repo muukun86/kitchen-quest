@@ -556,7 +556,7 @@
       "tier": 1,
       "warn": 0,
       "max": 100,
-      "prio": 20,
+      "prio": 30,
       "kind": "food",
       "meal": 0,
       "memo": ""
@@ -638,7 +638,7 @@
       "qty": 50,
       "unit": "%",
       "tier": 1,
-      "warn": 10,
+      "warn": 30,
       "max": 100,
       "prio": 15,
       "kind": "food",
@@ -652,7 +652,7 @@
       "tier": 1,
       "warn": 20,
       "max": 100,
-      "prio": 15,
+      "prio": 30,
       "kind": "food",
       "meal": 0,
       "memo": ""
@@ -788,7 +788,19 @@
       "kind": "food",
       "meal": 0,
       "memo": ""
+    },
+    "冷蔵庫::25": {
+      "nm": "ケチャップ",
+      "qty": 50,
+      "unit": "%",
+      "tier": 1,
+      "warn": 10,
+      "max": 100,
+      "prio": 30,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
     }
   },
-  "savedAt": "2026-08-23T11:21:56.648Z"
+  "savedAt": "2026-08-23T11:23:30.641Z"
 }
