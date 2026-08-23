@@ -244,11 +244,19 @@
   .mob.low-stock .catloc{color:#a35a54;}
   /* v2.5 sticky header */
   .stickytop{position:sticky;top:0;z-index:30;background:var(--bg);margin:0 -14px;padding:6px 14px 8px;border-bottom:1px solid var(--line);box-shadow:0 6px 14px -8px rgba(0,0,0,0.85);}
-  .hdr-sync{display:flex;gap:8px;margin-bottom:8px;}
+  .hdr-sync{display:flex;gap:8px;margin-bottom:8px;align-items:center;justify-content:flex-end;}
   .hdr-btn{flex:1;padding:7px;border-radius:3px;font-size:12px;font-weight:800;letter-spacing:.16em;cursor:pointer;background:rgba(8,16,28,0.6);font-family:"Segoe UI",system-ui,sans-serif;}
   .hdr-btn.read{border:1.5px solid var(--warn);color:var(--warn);text-shadow:0 0 6px var(--warn-glow);}
   .hdr-btn.write{border:1.5px solid var(--sys);color:var(--sys);text-shadow:0 0 6px var(--sys-glow);}
   .hdr-btn:active{transform:scale(.96);}
+  /* v2.7 auto-sync status pill */
+  .sync-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:3px;font-size:11px;font-weight:800;letter-spacing:.16em;font-family:"Segoe UI",system-ui,sans-serif;border:1.5px solid var(--sys);color:var(--sys);text-shadow:0 0 6px var(--sys-glow);background:rgba(8,16,28,0.6);transition:color .2s,border-color .2s;user-select:none;}
+  .sync-pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor;flex:none;}
+  .sync-pill.saving{border-color:var(--warn);color:var(--warn);text-shadow:0 0 6px var(--warn-glow);}
+  .sync-pill.saving .dot{animation:syncblink .8s infinite;}
+  .sync-pill.error{border-color:var(--danger);color:var(--danger);text-shadow:0 0 6px var(--danger);cursor:pointer;}
+  .sync-pill.offline{border-color:var(--line);color:#5a6a7a;text-shadow:none;}
+  @keyframes syncblink{0%,100%{opacity:1;}50%{opacity:.2;}}
   /* v2.5 row edit button */
   .mob-edit{flex:none;width:30px;height:30px;border-radius:4px;border:1px solid var(--line);background:rgba(8,16,28,0.7);color:var(--sys);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;z-index:2;}
   .mob-edit:active{transform:scale(.9);}
@@ -288,8 +296,7 @@
 
   <div class="stickytop">
   <div class="hdr-sync">
-    <button class="hdr-btn read" id="ghPullBtn" onclick="pullFromGitHub(false)">READ</button>
-    <button class="hdr-btn write" id="ghPushBtn" onclick="pushToGitHub()">WRITE</button>
+    <div class="sync-pill" id="syncPill" onclick="onSyncPillClick()"><span class="dot"></span><span id="syncLabel">SYNCED</span></div>
   </div>
   <div class="modebar">
     <div class="modetoggle" id="modeToggle">
@@ -323,12 +330,12 @@
     在庫は<b>スライダーで直接調整</b>。0になると「EMPTY」。<br>
     在庫の色 ── <b style="color:var(--sys)">青＝通常</b> ／ <b style="color:var(--warn)">橙＝警戒</b> ／ <b style="color:var(--danger)">赤＝危険（残りわずか）</b>。<br>
     表示軸 ── <b>ALL</b>（全品目）／<b>RANK</b>（S/A/G別）／<b>AREA</b>（保管場所別）。<br>
-    ※数値はこの端末・このブラウザ内だけに保存されます（localStorage）。他端末とは同期しません。
+    ※在庫は<b style="color:var(--sys)">変更のたびGitHubへ自動保存</b>され、他の端末とも自動で共有されます。ヘッダー右上の状態表示 ── <b style="color:var(--sys)">SYNCED＝保存済</b> ／ <b style="color:var(--warn)">SAVING＝保存中</b> ／ <b style="color:var(--danger)">RETRY＝失敗（タップで再試行）</b>。
   </div>
 
   <button class="reload-btn" id="reloadBtn" onclick="location.reload(true)">🔄 更新（最新に）</button>
-  <div class="sync-note">端末をまたいで在庫を一本化 ── <span onclick="clearGhToken()" style="text-decoration:underline;cursor:pointer;">トークン削除</span></div>
-  <div class="copyright">KITCHEN QUEST <span class="ver">v2.6</span> ── © 2026 muukun</div>
+  <div class="sync-note">端末をまたいで自動同期中 ── <span onclick="clearGhToken()" style="text-decoration:underline;cursor:pointer;">トークン削除</span></div>
+  <div class="copyright">KITCHEN QUEST <span class="ver">v2.7</span> ── © 2026 muukun</div>
 
   <div class="modal" id="addItemModal">
     <div class="modal-content">
@@ -550,6 +557,7 @@
   }
   function saveState(state){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+    if(typeof scheduleSync==="function") scheduleSync();
   }
   let state = loadState();
   let customItems = loadCustomItems();
@@ -564,6 +572,7 @@
   }
   function saveCustomItems(){
     try{ localStorage.setItem("kitchenQuest_customItems", JSON.stringify(customItems)); }catch(e){}
+    if(typeof scheduleSync==="function") scheduleSync();
   }
 
   // 既存品(DATA)の変更差分。キー "カテゴリ::元index" → 上書きフィールド
@@ -573,6 +582,7 @@
   }
   function saveOverrides(){
     try{ localStorage.setItem(OVERRIDE_KEY, JSON.stringify(overrides)); }catch(e){}
+    if(typeof scheduleSync==="function") scheduleSync();
   }
   let overrides = loadOverrides();
 
@@ -668,6 +678,124 @@
   window.pullFromGitHub = pullFromGitHub;
   window.pushToGitHub = pushToGitHub;
   window.clearGhToken = clearGhToken;
+
+  // ===== v2.7 自動同期（READ/WRITEボタン廃止 → 開いたら自動READ / 変更のたびに自動WRITE） =====
+  let __applyingRemote = false;              // リモート適用中の再同期を抑止（ループ防止）
+  let __syncTimer = null;
+  let __syncInFlight = false;
+  let __syncPending = false;
+  const SYNC_DEBOUNCE_MS = 2200;             // 連続操作をまとめて1回だけ書く（使用量スパイク対策）
+  const LAST_SYNCED_KEY = "kitchenQuest_lastSyncedAt";
+
+  function setSyncStatus(kind, msg){
+    const pill = document.getElementById("syncPill");
+    const label = document.getElementById("syncLabel");
+    if(!pill || !label) return;
+    pill.classList.remove("saving","error","offline");
+    if(kind==="saving"){ pill.classList.add("saving"); label.textContent="SAVING…"; pill.title="saving to GitHub"; }
+    else if(kind==="error"){ pill.classList.add("error"); label.textContent="RETRY"; pill.title=(msg||"sync error")+" — tap to retry"; }
+    else if(kind==="offline"){ pill.classList.add("offline"); label.textContent="OFFLINE"; pill.title="offline — will sync when back online"; }
+    else { label.textContent="SYNCED"; pill.title="auto-sync on"; }
+  }
+  function onSyncPillClick(){
+    const pill = document.getElementById("syncPill");
+    if(pill && pill.classList.contains("error")) scheduleSync(true);   // エラー時タップで即リトライ
+  }
+  window.onSyncPillClick = onSyncPillClick;
+
+  function scheduleSync(immediate){
+    if(__applyingRemote) return;                       // リモート適用由来の保存は同期しない
+    if(!navigator.onLine){ setSyncStatus("offline"); return; }
+    if(__syncTimer){ clearTimeout(__syncTimer); __syncTimer=null; }
+    __syncTimer = setTimeout(()=>{ __syncTimer=null; doSync(); }, immediate ? 0 : SYNC_DEBOUNCE_MS);
+  }
+  window.scheduleSync = scheduleSync;
+
+  async function doSync(){
+    if(__syncInFlight){ __syncPending = true; return; }   // 進行中なら後追い1回にまとめる
+    let token = ghToken();
+    if(!token){
+      token = prompt("GitHubトークンを入力してください（初回のみ・この端末に保存されます）\n※誰にも教えないでください");
+      if(!token){ setSyncStatus("error","token required"); return; }
+      setGhToken(token.trim()); token = token.trim();
+    }
+    __syncInFlight = true;
+    setSyncStatus("saving");
+    try{
+      const savedAt = await pushSilent(token);
+      localStorage.setItem(LAST_SYNCED_KEY, savedAt);
+      setSyncStatus("saved");
+    }catch(e){
+      if(!navigator.onLine) setSyncStatus("offline");
+      else setSyncStatus("error", e.message);
+    }finally{
+      __syncInFlight = false;
+      if(__syncPending){ __syncPending=false; scheduleSync(true); }
+    }
+  }
+
+  // サイレントPUT（409衝突は最新sha再取得で1回だけ再試行）。成功時 savedAt を返す
+  async function pushSilent(token){
+    const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+    const H = { "Authorization":"token "+token, "Accept":"application/vnd.github+json" };
+    async function getSha(){
+      const r = await fetch(apiUrl+"?t="+Date.now(), {headers:H, cache:"no-store"});
+      if(r.status===401){ localStorage.removeItem(GH_TOKEN_KEY); throw new Error("token invalid"); }
+      if(r.ok){ return (await r.json()).sha; }
+      return null;   // 未作成
+    }
+    const bundle = bundleData();
+    const savedAt = bundle.savedAt;
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(bundle, null, 2))));
+    function put(sha){
+      const body = { message:"auto-sync stock.json "+savedAt, content:b64, branch:"main" };
+      if(sha) body.sha = sha;
+      return fetch(apiUrl, {
+        method:"PUT",
+        headers:Object.assign({}, H, {"Content-Type":"application/json"}),
+        body: JSON.stringify(body),
+        keepalive:true      // タブを閉じる直前でも送信を完遂
+      });
+    }
+    let sha = await getSha();
+    let res = await put(sha);
+    if(res.status===409){ sha = await getSha(); res = await put(sha); }   // 衝突→再試行
+    if(!res.ok){
+      if(res.status===401){ localStorage.removeItem(GH_TOKEN_KEY); throw new Error("token invalid"); }
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.message || ("HTTP "+res.status));
+    }
+    return savedAt;
+  }
+
+  // 起動時サイレントREAD（この端末の未送信変更は潰さない）
+  async function autoPullOnOpen(){
+    if(!navigator.onLine){ setSyncStatus("offline"); return; }
+    try{
+      const url = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${GH_PATH}?t=${Date.now()}`;
+      const res = await fetch(url, {cache:"no-store"});
+      if(!res.ok) return;                                  // 未作成：ローカルのまま表示
+      const b = await res.json();
+      const lastSynced = localStorage.getItem(LAST_SYNCED_KEY) || "";
+      // リモートが前回同期時点より新しい時だけ反映（ISO文字列は辞書順=時系列順）
+      if(!lastSynced || (b.savedAt && b.savedAt > lastSynced)){
+        __applyingRemote = true;
+        applyBundle(b);
+        __applyingRemote = false;
+        localStorage.setItem(LAST_SYNCED_KEY, b.savedAt || new Date().toISOString());
+        if(typeof render==="function") render();
+      }
+      setSyncStatus("saved");
+    }catch(e){ /* 起動READ失敗は無視（ローカル表示を継続） */ }
+  }
+  window.autoPullOnOpen = autoPullOnOpen;
+
+  // タブを閉じる/バックグラウンド化する直前に保留分を確定
+  function flushPending(){ if(__syncTimer){ clearTimeout(__syncTimer); __syncTimer=null; doSync(); } }
+  window.addEventListener("pagehide", flushPending);
+  document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") flushPending(); });
+  window.addEventListener("online",  ()=>{ setSyncStatus("saved"); scheduleSync(true); });
+  window.addEventListener("offline", ()=>{ setSyncStatus("offline"); });
   // 元DATA品にoverrideをマージした実効mobを返す
   function effMob(cat, baseIndex, mob){
     const ov = overrides[cat+"::"+baseIndex];
@@ -1212,6 +1340,7 @@
     if(t) t.textContent = "MANUAL ▾";
   })();
   render();
+  autoPullOnOpen();   // v2.7: 開いたら自動でGitHubから最新在庫を読み込む
 </script>
 </body>
 </html>
