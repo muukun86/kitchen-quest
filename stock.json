@@ -405,7 +405,7 @@
       "tier": 1,
       "warn": 0,
       "max": 10,
-      "prio": 20,
+      "prio": 10,
       "kind": "food",
       "meal": 0,
       "memo": ""
@@ -483,5 +483,5 @@
       "hidden": true
     }
   },
-  "savedAt": "2026-08-25T03:57:03.365Z"
+  "savedAt": "2026-08-25T03:57:13.121Z"
 }
