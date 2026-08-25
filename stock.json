@@ -459,7 +459,19 @@
       "kind": "consumable",
       "meal": 0,
       "memo": ""
+    },
+    "冷蔵庫::16": {
+      "nm": "玉ねぎ",
+      "qty": 6,
+      "unit": "個",
+      "tier": 1,
+      "warn": 0,
+      "max": 10,
+      "prio": 80,
+      "kind": "food",
+      "meal": 0,
+      "memo": ""
     }
   },
-  "savedAt": "2026-08-25T03:53:26.757Z"
+  "savedAt": "2026-08-25T03:53:52.228Z"
 }
