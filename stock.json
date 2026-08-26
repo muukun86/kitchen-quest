@@ -88,9 +88,9 @@
         "unit": "％",
         "tier": 1,
         "warn": 0,
-        "max": 10,
+        "max": 100,
         "prio": 80,
-        "kind": "food",
+        "kind": "consumable",
         "meal": 0,
         "memo": ""
       },
@@ -616,5 +616,5 @@
       "memo": ""
     }
   },
-  "savedAt": "2026-08-26T06:14:50.576Z"
+  "savedAt": "2026-08-26T06:15:26.404Z"
 }
