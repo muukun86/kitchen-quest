@@ -122,6 +122,21 @@
         "kind": "consumable",
         "meal": 0,
         "memo": ""
+      },
+      {
+        "ic": "📦",
+        "nt": "",
+        "pri": "low",
+        "nm": "ドリップペーパー",
+        "qty": 30,
+        "unit": "%",
+        "tier": 1,
+        "warn": 10,
+        "max": 100,
+        "prio": 50,
+        "kind": "food",
+        "meal": 0,
+        "memo": ""
       }
     ],
     "冷凍庫": [
@@ -629,8 +644,10 @@
       "prio": 50,
       "kind": "food",
       "meal": 0,
-      "memo": ""
+      "memo": "",
+      "hidden": true,
+      "moved": true
     }
   },
-  "savedAt": "2026-08-26T06:18:28.740Z"
+  "savedAt": "2026-08-26T06:18:35.898Z"
 }
