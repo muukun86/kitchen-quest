@@ -104,7 +104,7 @@
         "tier": 1,
         "warn": 0,
         "max": 10,
-        "prio": 50,
+        "prio": 80,
         "kind": "consumable",
         "meal": 0,
         "memo": ""
@@ -616,5 +616,5 @@
       "memo": ""
     }
   },
-  "savedAt": "2026-08-26T06:17:04.915Z"
+  "savedAt": "2026-08-26T06:17:29.584Z"
 }
