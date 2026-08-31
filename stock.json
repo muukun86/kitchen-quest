@@ -173,6 +173,21 @@
         "kind": "food",
         "meal": 0,
         "memo": ""
+      },
+      {
+        "ic": "📦",
+        "nt": "",
+        "pri": "low",
+        "nm": "すりごま",
+        "qty": 1,
+        "unit": "%",
+        "tier": 1,
+        "warn": 0,
+        "max": 10,
+        "prio": 50,
+        "kind": "food",
+        "meal": 7,
+        "memo": ""
       }
     ]
   },
@@ -683,5 +698,5 @@
       "moved": true
     }
   },
-  "savedAt": "2026-08-29T10:47:29.543Z"
+  "savedAt": "2026-08-31T06:21:23.059Z"
 }
